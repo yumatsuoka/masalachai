@@ -60,22 +60,32 @@ class Trainer(object):
         self.optimizer.target(vx, vt)
 
 
-    def train(self, nitr, batchsize, log_interval=100):
+    def train(self, nitr, batchsize, log_interval=100, test_interval=1000, test_batchsize=100, test_nitr=1):
         # training
         self.train_batch = self.train_data.batch(batchsize, shuffle=True)
         supervised_loss = 0.
-        for i in six.moves.range(nitr):
-            supervised_loss += self.supervised_update(batchsize)
+        train_acc = 0.
+        for i in six.moves.range(1, nitr+1):
+            supervised_loss += float(self.supervised_update(batchsize))
+            train_acc += float(self.optimizer.target.accuracy.data)
             self.optimizer_param_process(i)
 
             # logging
             if i % log_interval == 0 and self.logging:
-                self.logger.loss_log(i, self.optimizer.target.loss.data / log_interval)
+                self.logger.loss_acc_log(i, supervised_loss/log_interval, train_acc/log_interval)
                 supervised_loss = 0.
+                train_acc = 0.
+
+            # test
+            if i % test_interval == 0 and self.logging:
+                self.test(test_nitr, test_batchsize)
 
         # logging
         if self.logging:
-            self.logger.loss_log(nitr, self.optimizer.target.loss.data / ((nitr%log_interval)+1))
+            self.logger.loss_log(nitr, float(self.optimizer.target.loss.data / ((nitr%log_interval)+1)))
+        # test
+        if test_interval > 0 and self.logging:
+            self.test(test_nitr, test_batchsize)
 
 
     def test(self, nitr, batchsize):
@@ -89,5 +99,5 @@ class Trainer(object):
             loss += self.optimizer.target.loss.data
         # logging
         if self.logging:
-            self.logger.test_log(acc/nitr, loss/nitr)
-        return acc/nitr, loss/nitr
+            self.logger.test_log(float(loss/nitr), float(acc/nitr))
+        return loss/nitr, acc/nitr
