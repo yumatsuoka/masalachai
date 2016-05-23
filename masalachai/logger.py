@@ -37,7 +37,13 @@ class Logger(object):
 
     def loss_acc_log(self, itr, loss, acc):
         log_str = '{0:d}, loss={1:.5f}, accuracy={2:.5f}'.format(itr, loss, acc)
+        self.__call__(log_str)
+
+    def loss_log(self, itr, loss):
+        log_str = '{0:d}, loss={1:.5f}'.format(itr, loss)
+        self.__call__(log_str)
 
     def test_log(self,loss, acc):
         log_str = '[TEST], loss={0:.5f}, accuracy={1:.5f}'.format(loss, acc)
+        self.__call__(log_str)
 
