@@ -9,7 +9,7 @@ install_requires = [ pandas_version, six_version, chainer_version ]
 
 setup(
         name = 'masalachai',
-        version = '0.2.0',
+        version = '0.2.1',
         packages = ['masalachai',
                     'masalachai.trainers',
                     'masalachai.optimizer_schedulers'],

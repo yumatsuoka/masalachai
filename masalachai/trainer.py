@@ -3,7 +3,7 @@ import six
 import chainer
 from chainer import cuda
 
-from masalachai import DataFeeder
+from masalachai.datafeeder import DataFeeder
 
 class Trainer(object):
     _preprocess_hooks = []
