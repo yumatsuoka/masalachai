@@ -15,16 +15,6 @@ import mnist
 from masalachai import Trainer
 from mlp import Mlp
 
-# for logging
-from logging import getLogger,Formatter,StreamHandler,INFO
-logger = getLogger(__name__)
-formatter = Formatter(fmt='%(asctime)s %(message)s',datefmt='%Y/%m/%d %p %I:%M:%S,',)
-handler = StreamHandler()
-handler.setLevel(INFO)
-handler.setFormatter(formatter)
-logger.setLevel(INFO)
-logger.addHandler(handler)
-
 # argparse
 parser = argparse.ArgumentParser(description='Supervised Multi Layer Perceptron Example')
 parser.add_argument('--epoch', '-e', type=int, default=10, help='training epoch (default: 10)')
