@@ -24,7 +24,7 @@ class Logger(object):
             self.logger.addHandler(self.file_handler)
 
         # Cheryl API setting
-        chery = (tocheryl is not None) and (touser is not None)
+        self.chery = (tocheryl is not None) and (touser is not None)
         if chery:
             self.bot = CherylAPI(configfile=tocheryl)
             self.user = touser
@@ -32,7 +32,7 @@ class Logger(object):
 
     def __call__(self, msg):
         self.logger.info(msg)
-        if cheryl:
+        if self.cheryl:
             self.bot.post_direct_message_by(self.user, '['+os.uname()[1]+'] '+msg)
 
     def loss_acc_log(self, itr, loss, acc):
