@@ -1,3 +1,3 @@
-from masalacahi.trainers import vat
+from masalachai.trainers import vat
 
 VirtualAdversarialTrainer = vat.VirtualAdversarialTrainer
