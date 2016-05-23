@@ -13,7 +13,7 @@ setup(
         packages = ['masalachai',
                     'masalachai.trainers',
                     'masalachai.optimizer_schedulers'],
-        description = '',
+        description = 'Masala Chai: easy chainer tool',
         author = 'Daiki Shimada',
         author_email = 'daiki.shimada.9g@stu.hosei.ac.jp',
         url = 'https://github.com/DaikiShimada/masalachai.git',

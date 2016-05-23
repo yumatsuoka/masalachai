@@ -1,6 +1,6 @@
-from masaslachai import datafeeder
-from masaslachai import optimizer_scheduler
-from masaslachai import trainer
+from masalachai import datafeeder
+from masalachai import optimizer_scheduler
+from masalachai import trainer
 
 DataFeeder = datafeeder.DataFeeder
 OptimizerScheduler = optimizer_scheduler.OptimizerScheduler
