@@ -2,13 +2,17 @@
 
 from setuptools import setup
 
+pandas_version = 'pandas'
+six_version = 'six>=1.9.0'
 chainer_version = 'chainer>=1.8.2'
-install_requires = [ chainer_version ]
+install_requires = [ pandas_version, six_version, chainer_version ]
 
 setup(
         name = 'masalachai',
         version = '0.1.0',
-        packages = ['masalachai'],
+        packages = ['masalachai',
+                    'masalachai.trainers',
+                    'masalachai.optimizer_schedulers'],
         description = '',
         author = 'Daiki Shimada',
         author_email = 'daiki.shimada.9g@stu.hosei.ac.jp',
