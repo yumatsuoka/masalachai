@@ -3,17 +3,21 @@ import six
 import chainer
 from chainer import cuda
 
+from masalachai.logger import Logger
 from masalachai.datafeeder import DataFeeder
 
 class Trainer(object):
     _preprocess_hooks = []
     _optimizer_param_schedulers = []
 
-    def __init__(self, optimizer, train_data, test_data, gpu):
+    def __init__(self, optimizer, train_data, test_data, gpu, logging=True, logfile=None, logcheryl=None, loguser=None):
         self.optimizer = optimizer
         self.train_data = DataFeeder(data_dict=train_data)
         self.test_data = DataFeeder(data_dict=test_data)
         self.gpu = gpu
+        self.logging = logging
+        if self.logging:
+            self.logger = Logger(__name__, tofile=logfile, tocheryl=logcheryl, touser=loguser)
 
     def hook(self, func):
         self._preprocess_hooks.append(func)
@@ -40,6 +44,7 @@ class Trainer(object):
         self.optimizer.update(self.optimizer.target, vx, vt)
         return self.optimizer.target.loss.data
 
+
     def predict(self, batchsize):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy
@@ -54,6 +59,7 @@ class Trainer(object):
         # forward and update
         self.optimizer.target(vx, vt)
 
+
     def train(self, nitr, batchsize, log_interval=100):
         # training
         self.train_batch = self.train_data.batch(batchsize, shuffle=True)
@@ -61,10 +67,16 @@ class Trainer(object):
         for i in six.moves.range(nitr):
             supervised_loss += self.supervised_update(batchsize)
             self.optimizer_param_process(i)
-            if i % log_interval == 0:
-                print self.optimizer.target.loss.data / log_interval
+
+            # logging
+            if i % log_interval == 0 and self.logging:
+                self.logger.loss_log(i, self.optimizer.target.loss.data / log_interval)
                 supervised_loss = 0.
-        print self.optimizer.target.loss.data / ((nitr%log_interval)+1)
+
+        # logging
+        if self.logging:
+            self.logger.loss_log(nitr, self.optimizer.target.loss.data / ((nitr%log_interval)+1))
+
 
     def test(self, nitr, batchsize):
         # testing
@@ -75,4 +87,7 @@ class Trainer(object):
             self.predict(batchsize)
             acc += self.optimizer.target.accuracy.data
             loss += self.optimizer.target.loss.data
+        # logging
+        if self.logging:
+            self.logger.test_log(acc/nitr, loss/nitr)
         return acc/nitr, loss/nitr

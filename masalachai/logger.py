@@ -34,3 +34,10 @@ class Logger(object):
         self.logger.info(msg)
         if cheryl:
             self.bot.post_direct_message_by(self.user, '['+os.uname()[1]+'] '+msg)
+
+    def loss_acc_log(self, itr, loss, acc):
+        log_str = '{0:d}, loss={1:.5f}, accuracy={2:.5f}'.format(itr, loss, acc)
+
+    def test_log(self,loss, acc):
+        log_str = '[TEST], loss={0:.5f}, accuracy={1:.5f}'.format(loss, acc)
+
