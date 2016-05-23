@@ -1,0 +1,3 @@
+from masalachai.optimizer_schedulers import decay_scheduler
+
+DecayOptimizerScheduler = decay_scheduler.DecayOptimizerScheduler
