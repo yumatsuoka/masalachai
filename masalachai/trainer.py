@@ -82,7 +82,7 @@ class Trainer(object):
 
         # logging
         if self.logging:
-            self.logger.loss_log(nitr, float(self.optimizer.target.loss.data / ((nitr%log_interval)+1)))
+            self.logger.loss_log(nitr, supervised_loss / ((nitr%log_interval)+1))
         # test
         if test_interval > 0 and self.logging:
             self.test(test_nitr, test_batchsize)
