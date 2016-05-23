@@ -24,8 +24,8 @@ class Logger(object):
             self.logger.addHandler(self.file_handler)
 
         # Cheryl API setting
-        self.chery = (tocheryl is not None) and (touser is not None)
-        if self.chery:
+        self.cheryl = (tocheryl is not None) and (touser is not None)
+        if self.cheryl:
             self.bot = CherylAPI(configfile=tocheryl)
             self.user = touser
 
