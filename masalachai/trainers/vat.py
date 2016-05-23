@@ -3,14 +3,19 @@ import six
 import chainer
 from chainer import cuda
 
+from masalachai import Logger
+from masalachai import DataFeeder
 from masalachai import Trainer
 
 class VirtualAdversarialTrainer(Trainer):
-    def __init__(self, optimizer, labeled_data, unlabeled_data, test_data, gpu, eps=4.0, xi=0.1, pitr=1):
-        super(VirtualAdversarialTrainer, self).__init__(optimizer, labeled_data, test_data, gpu)
+    def __init__(self, optimizer, labeled_data, unlabeled_data, test_data, gpu, eps=4.0, xi=0.1, lam=1., pitr=1,
+                 logging=True, logfile=None, logcheryl=None, loguser=None):
+        super(VirtualAdversarialTrainer, self).__init__(optimizer, labeled_data, test_data, gpu, 
+                                                        logging=logging, logfile=logfile, logcheryl=logcheryl, loguser=loguser)
         self.unlabeled_data = DataFeeder(data_dict=unlabeled_data)
         self.eps = eps
         self.xi = xi
+        self.lam = lam
         self.pitr = pitr
 
     def unsupervised_update(self, batchsize):
@@ -51,28 +56,38 @@ class VirtualAdversarialTrainer(Trainer):
             d = vr.grad / xp.sqrt(xp.sum(vr.grad*vr.grad, axis=1)).reshape(d.shape[0], 1)
         r_vadv = chainer.Variable(self.eps * d)
         q_vadv = F.softmax(self.optimizer.target.predictor(x+r_vadv))
-        self.lds_loss = kl_divergence(p, q_vadv)
+        self.lds_loss = self.lam * kl_divergence(p, q_vadv)
         return self.lds_loss
 
-    def train(self, nitr, lbatchsize, ubatchsize, log_interval=100, test_flag=True, test_batch=100, test_nitr=None):
-        if test_flag and test_nitr is None:
-            test_nitr = self.test_data.n / test_batch
+    def train(self, nitr, lbatchsize, ubatchsize, log_interval=100, test_batchsize=100, test_nitr=1):
         # training
         self.train_batch = self.train_data.batch(lbatchsize, shuffle=True)
         self.unlabeled_batch = self.unlabeled_data.batch(ubatchsize, shuffle=True)
         supervised_loss = 0.
         unsupervised_loss = 0.
+        train_acc = 0.
         for i in six.moves.range(nitr):
-            supervised_loss += self.supervised_update(lbatchsize)
+            supervised_loss += float(self.supervised_update(lbatchsize))
             self.optimizer.target.loss.unchain_backward()
-            unsupervised_loss += self.unsupervised_update(ubatchsize)
+            train_acc += float(self.optimizer.target.accuracy.data)
+            unsupervised_loss += float(self.unsupervised_update(ubatchsize))
             self.lds_loss.unchain_backward()
             self.optimizer_param_process(i)
-            if i % log_interval == 0:
-                log = str(i) + ', ' + str(supervised_loss/log_interval) + ', ' + str(unsupervised_loss/log_interval)
-                if test_flag:
-                    test_acc, test_loss = self.test(test_nitr, test_batch)
-                    log += ', ' + str(test_acc) + ', ' + str(test_loss)
-                print log
-                unsupervised_loss = 0.
+
+            # logging
+            if i % log_interval == 0 and self.logging:
+                self.logger.loss_acc_log(i, (supervised_loss+unsupervised_loss)/log_interval, train_acc/log_interval)
                 supervised_loss = 0.
+                unsupervised_loss = 0.
+                train_acc = 0.
+
+            # test
+            if i % test_interval == 0 and self.logging:
+                self.test(test_nitr, test_batchsize)
+
+        # logging
+        if self.logging:
+            self.logger.loss_log(nitr, (supervised_loss+unsupervised_loss)/((nitr%log_interval)+1))
+        # test
+        if test_interval > 0 and self.logging:
+            self.test(test_nitr, test_batchsize)
