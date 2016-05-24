@@ -54,8 +54,8 @@ class VirtualAdversarialTrainer(Trainer):
             k = kl_divergence(p, q)
             k.backward()
             d = vr.grad / xp.sqrt(xp.sum(vr.grad*vr.grad, axis=1)).reshape(d.shape[0], 1)
-        r_vadv = chainer.Variable(self.eps * d)
-        q_vadv = chainer.functions.softmax(self.optimizer.target.predictor(x+r_vadv))
+        self.r_vadv = chainer.Variable(self.eps * d)
+        q_vadv = chainer.functions.softmax(self.optimizer.target.predictor(x+self.r_vadv))
         self.lds_loss = self.lam * kl_divergence(p, q_vadv)
         return self.lds_loss
 
