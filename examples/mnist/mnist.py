@@ -48,8 +48,10 @@ if __name__ == '__main__':
     train_label_ary = convert_label(train_label)
     test_label_ary = convert_label(test_label)
 
-    train = {'data': train_image_ary, 'target': train_label_ary}
-    test = {'data': test_image_ary, 'target': test_label_ary}
+    category_names = [str(i) for i in six.moves.range(10)]
+
+    train = {'data': train_image_ary, 'target': train_label_ary, 'size': len(train_label_ary), 'categories': len(category_names), 'category_names': category_names}
+    test = {'data': test_image_ary, 'target': test_label_ary, 'size': len(test_label_ary), 'categories': len(category_names), 'category_names': category_names}
     data = {'train': train, 'test': test}
 
     out_name = 'mnist.pkl'
