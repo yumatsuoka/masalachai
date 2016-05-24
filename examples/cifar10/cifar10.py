@@ -33,7 +33,7 @@ def convert_test_image():
         batch_name = dir_name + '/test_batch'
         batch = six.moves.cPickle.load(f.extractfile(batch_name))
         data = batch['data'].reshape(batchsize, 3, 32, 32)
-        labels = batch['labels']
+        labels = np.asarray(batch['labels']).astype(np.uint8)
     return data, labels
 
 

@@ -4,7 +4,6 @@ import six
 import numpy
 import pandas
 import itertools
-import operator
 
 class DataFeeder(object):
     def __init__(self, data_dict=None):
@@ -21,4 +20,4 @@ class DataFeeder(object):
         gen = itertools.cycle(perm)
         while True:
             indexes = [gen.next() for b in six.moves.range(0, batchsize)]
-            yield {k: numpy.asarray(operator.itemgetter(*indexes)(v)) for k,v in self.data_dict.items()}
+            yield {'data': self.data_dict['data'][indexes], 'target': self.data_dict['target'][indexes]}
