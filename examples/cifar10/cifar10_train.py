@@ -14,6 +14,7 @@ import cifar10
 # import model network
 from masalachai import Trainer
 from allconvnet import AllConvNet
+from allconvnet_bn import AllConvNetBN
 
 # argparse
 parser = argparse.ArgumentParser(description='All Convolutional Network Example on CIFAR-10')
@@ -45,7 +46,8 @@ test_data['target'] = test_data['target'].astype(np.int32)
 
 
 # Model Setup
-model = L.Classifier(AllConvNet())
+#model = L.Classifier(AllConvNet())
+model = L.Classifier(AllConvNetBN())
 if args.gpu >= 0:
     cuda.get_device(args.gpu).use()
     model.to_gpu()
