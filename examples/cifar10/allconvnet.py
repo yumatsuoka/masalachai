@@ -12,9 +12,11 @@ class AllConvNet(chainer.Chain):
         super(AllConvNet, self).__init__(
                 conv1 = L.Convolution2D(3, 96, 3),
                 conv2 = L.Convolution2D(96, 96, 3, pad=1),
+                # stridced conv
                 conv3 = L.Convolution2D(96, 96, 3, stride=2),
                 conv4 = L.Convolution2D(96, 192, 3, pad=1),
                 conv5 = L.Convolution2D(192, 192, 3, pad=1),
+                # stridced conv
                 conv6 = L.Convolution2D(192, 192, 3, stride=2),
                 conv7 = L.Convolution2D(192, 192, 3, pad=1),
                 conv8 = L.Convolution2D(192, 192, 1),
@@ -23,12 +25,12 @@ class AllConvNet(chainer.Chain):
         self.train = True
 
     def __call__(self, x):
-        h = F.relu(self.conv1(x))
+        h = F.relu(self.conv1(F.dropout(x, ratio=0.2, train=self.train)))
         h = F.relu(self.conv2(h))
-        h = F.relu(self.conv3(h))
+        h = F.dropout(F.relu(self.conv3(h)), ratio=0.5, train=self.train)
         h = F.relu(self.conv4(h))
         h = F.relu(self.conv5(h))
-        h = F.relu(self.conv6(h))
+        h = F.dropout(F.relu(self.conv6(h)), ratio=0.5, train=self.train)
         h = F.relu(self.conv7(h))
         h = F.relu(self.conv8(h))
         h = F.relu(self.conv9(h))

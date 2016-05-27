@@ -45,7 +45,7 @@ class Trainer(object):
         return self.optimizer.target.loss.data
 
 
-    def predict(self, batchsize):
+    def predict(self, batchsize, train=False):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy
 
@@ -56,8 +56,10 @@ class Trainer(object):
         vx = chainer.Variable(xp.asarray(data['data']), volatile='on')
         vt = chainer.Variable(xp.asarray(data['target']), volatile='on')
 
-        # forward and update
+        # forward
+        self.optimizer.target.predictor.train = train
         self.optimizer.target(vx, vt)
+        self.optimizer.target.predictor.train = not train
 
 
     def train(self, nitr, batchsize, log_interval=100, test_interval=1000, test_batchsize=100, test_nitr=1):
