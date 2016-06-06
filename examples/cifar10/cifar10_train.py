@@ -18,7 +18,7 @@ from allconvnet_bn import AllConvNetBN
 
 # argparse
 parser = argparse.ArgumentParser(description='All Convolutional Network Example on CIFAR-10')
-parser.add_argument('--epoch', '-e', type=int, default=100, help='training epoch (default: 100)')
+parser.add_argument('--epoch', '-e', type=int, default=300, help='training epoch (default: 100)')
 parser.add_argument('--batch', '-b', type=int, default=100, help='training batchsize (default: 100)')
 parser.add_argument('--valbatch', '-v', type=int, default=100, help='validation batchsize (default: 100)')
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if you want to use cpu, use -1 (default: -1)')
@@ -55,8 +55,9 @@ if args.gpu >= 0:
 # Opimizer Setup
 optimizer = optimizers.Adam()
 optimizer.setup(model)
+optimizer.add_hook(chainer.optimizer.WeightDecay(0.00002))
 
-trainer = Trainer(optimizer, train_data, test_data, args.gpu)
+trainer = Trainer(optimizer, train_data, test_data, args.gpu, logfile='cifar10_allconvnet.csv')
 trainer.hook(cifar_preprocess)
 trainer.train(args.epoch*train_data['size']/args.batch, 
               args.batch, 
