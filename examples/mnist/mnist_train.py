@@ -12,6 +12,9 @@ from chainer import cuda, optimizers
 import mnist
 
 # import model network
+import sys
+sys.path.append('../../masalachai')
+from masalachai import DataFeeder
 from masalachai import Trainer
 from mlp import Mlp
 
@@ -37,10 +40,13 @@ dataset = mnist.load()
 dim = dataset['train']['data'][0].size
 N_train = len(dataset['train']['target'])
 N_test = len(dataset['test']['target'])
-train_data = {'data':dataset['train']['data'].reshape(N_train, dim).astype(np.float32),
+train_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).astype(np.float32),
               'target':dataset['train']['target'].astype(np.int32)}
-test_data = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.float32),
+test_data_dict = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.float32),
              'target':dataset['test']['target'].astype(np.int32)}
+train_data = DataFeeder(data_dict=train_data_dict)
+test_data = DataFeeder(data_dict=test_data_dict)
+
 
 # Model Setup
 h_units = 1200

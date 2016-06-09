@@ -9,8 +9,6 @@ class SiasemseTrainer(Trainer):
                  logging=True, logfile=None, logcheryl=None, loguser=None):
         super(SiasemseTrainer, self).__init__(optimizer, trai_data, test_data, gpu,
                                               logging=logging, logfile=logfile, logcheryl=logcheryl, loguser=loguer)
-        self.train_data = SiameseFeeder(data_dict=train_data)
-
     def supervised_update(self, batchsize):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy

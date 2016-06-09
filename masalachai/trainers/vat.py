@@ -12,7 +12,7 @@ class VirtualAdversarialTrainer(Trainer):
                  logging=True, logfile=None, logcheryl=None, loguser=None):
         super(VirtualAdversarialTrainer, self).__init__(optimizer, labeled_data, test_data, gpu, 
                                                         logging=logging, logfile=logfile, logcheryl=logcheryl, loguser=loguser)
-        self.unlabeled_data = DataFeeder(data_dict=unlabeled_data)
+        self.unlabeled_data = unlabeled_data
         self.eps = eps
         self.xi = xi
         self.lam = lam

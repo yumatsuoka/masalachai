@@ -12,8 +12,8 @@ class Trainer(object):
 
     def __init__(self, optimizer, train_data, test_data, gpu, logging=True, logfile=None, logcheryl=None, loguser=None):
         self.optimizer = optimizer
-        self.train_data = DataFeeder(data_dict=train_data)
-        self.test_data = DataFeeder(data_dict=test_data)
+        self.train_data = train_data
+        self.test_data = test_data
         self.gpu = gpu
         self.logging = logging
         if self.logging:

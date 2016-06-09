@@ -10,6 +10,9 @@ class DataFeeder(object):
         self.data_dict = data_dict
         self.n = len(data_dict['data']) if self.data_dict is not None else None
 
+    def __getitem__(self, index):
+        return self.data_dict[index]
+
     def load_from_csv(self, fname):
         df = pandas.read_csv(fname)
         self.data_dict = df.to_dict()
