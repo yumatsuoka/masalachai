@@ -11,6 +11,7 @@ setup(
         name = 'masalachai',
         version = '0.3.2',
         packages = ['masalachai',
+                    'masalachai.datafeeders',
                     'masalachai.trainers',
                     'masalachai.optimizer_schedulers'],
         description = 'Masala Chai: easy chainer tool',
