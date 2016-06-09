@@ -12,7 +12,7 @@ from chainer import cuda, optimizers
 import cifar10
 
 # import model network
-from masalachai import Trainer
+from masalachai import Trainer, datafeeders, models
 from allconvnet import AllConvNet
 
 # argparse
@@ -35,17 +35,19 @@ xp = cuda.cupy if args.gpu >= 0 else np
 # loading dataset
 dataset = cifar10.load()
 
-train_data = dataset['train']
-train_data['data'] = train_data['data'].astype(np.float32)
-train_data['target'] = train_data['target'].astype(np.int32)
+train_data_dic = dataset['train']
+train_data_dic['data'] = train_data_dic['data'].astype(np.float32)
+train_data_dic['target'] = train_data_dic['target'].astype(np.int32)
+train_data = datafeeders.SiameseFeeder(data_dic=train_data_dic)
 
-test_data = dataset['test']
-test_data['data'] = test_data['data'].astype(np.float32)
-test_data['target'] = test_data['target'].astype(np.int32)
+test_data_dic = dataset['test']
+test_data_dic['data'] = test_data_dic['data'].astype(np.float32)
+test_data_dic['target'] = test_data_dic['target'].astype(np.int32)
+test_data = datafeeders.SiameseFeeder(data_dic=test_data_dic)
 
 
 # Model Setup
-model = L.Classifier(AllConvNet())
+model = models.SiameseModel(AllConvNet())
 if args.gpu >= 0:
     cuda.get_device(args.gpu).use()
     model.to_gpu()
