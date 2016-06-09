@@ -4,9 +4,9 @@ from chainer import link
 from chainer.functions import contrastive
 
 ## Siamese Network Wrapper
-class SiameseNet(link.Chain):
+class SiameseModel(link.Chain):
     def __init__(self, predictor, lossfun=contrastive):
-        super(SiameseNet, self).__init__(predictor=predictor)
+        super(SiameseModel, self).__init__(predictor=predictor)
         self.lossfun = lossfun
         #self.y = None
         self.loss = None
