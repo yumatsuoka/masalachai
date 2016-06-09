@@ -13,7 +13,7 @@ category_names = ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog'
 
 def download():
     url = 'https://www.cs.toronto.edu/~kriz'
-    request.urllib(url+'/'+fname, fname)
+    request.urlretrieve(url+'/'+fname, fname)
 
 def convert_train_image():
     data = np.zeros((batches*batchsize, 3, 32, 32), dtype=np.uint8)
@@ -22,7 +22,7 @@ def convert_train_image():
         dir_name = 'cifar-10-batches-py'
         for i in six.moves.range(batches):
             batch_name = dir_name + '/data_batch_' + str(i+1)
-            batch = six.moves.cPickle.load(f.extractfile(batch_name))
+            batch = six.moves.cPickle.load(f.extractfile(batch_name), encoding='latin1')
             data[i*batchsize:(i+1)*batchsize] = batch['data'].reshape(batchsize, 3, 32, 32)
             labels[i*batchsize:(i+1)*batchsize] = batch['labels']
     return data, labels
@@ -31,7 +31,7 @@ def convert_test_image():
     with tarfile.open(fname, 'r:gz') as f:
         dir_name = 'cifar-10-batches-py'
         batch_name = dir_name + '/test_batch'
-        batch = six.moves.cPickle.load(f.extractfile(batch_name))
+        batch = six.moves.cPickle.load(f.extractfile(batch_name), encoding='latin1')
         data = batch['data'].reshape(batchsize, 3, 32, 32)
         labels = np.asarray(batch['labels']).astype(np.uint8)
     return data, labels
@@ -44,7 +44,7 @@ def load(name='cifar10.pkl'):
 
 
 if __name__ == '__main__':
-    download()
+    #download()
 
     train_data, train_labels = convert_train_image()
     train = {'data': train_data, 
