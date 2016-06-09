@@ -11,9 +11,10 @@ class SiameseModel(link.Chain):
         #self.y = None
         self.loss = None
 
-    def __call__(self, x0, x1, t):
+    def __call__(self, x, t):
         #self.y = None
         self.loss = None
+        x0, x1 = x
         self.y0 = self.predictor(x0)
         self.y1 = self.predictor(x1)
         self.loss = self.lossfun(self.y0, self.y1, t)
