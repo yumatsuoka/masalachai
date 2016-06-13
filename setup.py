@@ -9,7 +9,7 @@ install_requires = [ pandas_version, six_version, chainer_version ]
 
 setup(
         name = 'masalachai',
-        version = '0.3.2.1',
+        version = '0.3.3',
         packages = ['masalachai',
                     'masalachai.datafeeders',
                     'masalachai.trainers',
