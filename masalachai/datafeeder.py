@@ -19,8 +19,11 @@ class DataFeeder(object):
         self.n = len(df)
 
     def batch(self, batchsize, shuffle=True):
-        perm = numpy.random.permutation(self.n) if shuffle else numpy.arange(self.n)
-        gen = itertools.cycle(perm)
         while True:
-            indexes = [gen.next() for b in six.moves.range(0, batchsize)]
-            yield {'data': self.data_dict['data'][indexes], 'target': self.data_dict['target'][indexes]}
+            perm = numpy.random.permutation(self.n) if shuffle else numpy.arange(self.n)
+            gen = itertools.cycle(perm)
+            cnt = 0
+            while cnt < self.n:
+                indexes = [gen.next() for b in six.moves.range(0, batchsize)]
+                cnt += batchsize
+                yield {'data': (self.data_dict['data'][indexes],), 'target': (self.data_dict['target'][indexes],)}

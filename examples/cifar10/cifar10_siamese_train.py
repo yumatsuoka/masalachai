@@ -38,12 +38,12 @@ dataset = cifar10.load()
 train_data_dic = dataset['train']
 train_data_dic['data'] = train_data_dic['data'].astype(np.float32)
 train_data_dic['target'] = train_data_dic['target'].astype(np.int32)
-train_data = datafeeders.SiameseFeeder(data_dic=train_data_dic)
+train_data = datafeeders.SiameseFeeder(data_dict=train_data_dic)
 
 test_data_dic = dataset['test']
 test_data_dic['data'] = test_data_dic['data'].astype(np.float32)
 test_data_dic['target'] = test_data_dic['target'].astype(np.int32)
-test_data = datafeeders.SiameseFeeder(data_dic=test_data_dic)
+test_data = datafeeders.SiameseFeeder(data_dict=test_data_dic)
 
 
 # Model Setup

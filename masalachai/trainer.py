@@ -37,8 +37,8 @@ class Trainer(object):
         data = self.train_batch.next()
         for func in self._preprocess_hooks:
             data = func(data)
-        vx = chainer.Variable(xp.asarray(data['data']))
-        vt = chainer.Variable(xp.asarray(data['target']))
+        vx = tuple([chainer.Variable(xp.asarray(d)) for d in data['data']])
+        vt = tuple([chainer.Variable(xp.asarray(t)) for t in data['target']])
 
         # forward and update
         self.optimizer.update(self.optimizer.target, vx, vt)
@@ -53,8 +53,8 @@ class Trainer(object):
         data = self.test_batch.next()
         for func in self._preprocess_hooks:
             data = func(data)
-        vx = chainer.Variable(xp.asarray(data['data']), volatile='on')
-        vt = chainer.Variable(xp.asarray(data['target']), volatile='on')
+        vx = tuple([chainer.Variable(xp.asarray(d), volatile='on') for d in data['data']])
+        vt = tuple([chainer.Variable(xp.asarray(t), volatile='on') for t in data['target']])
 
         # forward
         self.optimizer.target.predictor.train = train
@@ -62,7 +62,7 @@ class Trainer(object):
         self.optimizer.target.predictor.train = not train
 
 
-    def train(self, nitr, batchsize, log_interval=100, test_interval=1000, test_batchsize=100, test_nitr=1):
+    def train(self, nitr, batchsize, log_interval=100, test_interval=1000, test_batchsize=100, test_nitr=1, accuracy=True):
         # training
         self.train_batch = self.train_data.batch(batchsize, shuffle=True)
         supervised_loss = 0.
