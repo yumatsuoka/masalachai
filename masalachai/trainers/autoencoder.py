@@ -1,5 +1,10 @@
+import numpy
+import six
+import chainer
+from chainer import cuda
 
 from masalachai import Trainer
+from masalachai import Logger
 
 class AutoencodeTrainer(Trainer):
     def __init__(self, optimizer, data_feeder, gpu, logging=True, logfile=None, logcheryl=None, loguser=None):
