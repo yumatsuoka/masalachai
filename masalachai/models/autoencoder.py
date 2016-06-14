@@ -6,7 +6,7 @@ from chainer.functions import mean_squared_error
 ## Autoencoder Wrapper
 class AutoencodeModel(link.Chain):
     def __init__(self, predictor, lossfun=mean_squared_error):
-        super(SiameseModel, self).__init__(predictor=predictor)
+        super(AutoencodeModel, self).__init__(predictor=predictor)
         self.lossfun = lossfun
         self.h = None
         self.y = None
