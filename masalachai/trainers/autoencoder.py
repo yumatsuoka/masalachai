@@ -3,10 +3,10 @@ from masalachai import Trainer
 
 class AutoencodeTrainer(Trainer):
     def __init__(self, optimizer, data_feeder, gpu, logging=True, logfile=None, logcheryl=None, loguser=None):
-       self.optimizer = optimizer
-       self.train_data = data_feeder
-       self.gpu = gpu
-       self.logging = logging
+        self.optimizer = optimizer
+        self.train_data = data_feeder
+        self.gpu = gpu
+        self.logging = logging
         if self.logging:
             self.logger = Logger(__name__, tofile=logfile, tocheryl=logcheryl, touser=loguser)
 
