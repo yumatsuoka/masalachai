@@ -15,6 +15,6 @@ class AutoencodeFeeder(DataFeeder):
         perm = numpy.random.permutation(self.n) if shuffle else numpy.arange(self.n)
         gen = itertools.cycle(perm)
         while True:
-            indexes = [gen_f.next() for b in six.moves.range(0, batchsize)]
+            indexes = [gen.next() for b in six.moves.range(0, batchsize)]
             yield {'data': (self.data_dict['data'][indexes],), 'target': (None,)}
 
