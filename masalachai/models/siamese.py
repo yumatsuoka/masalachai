@@ -24,4 +24,4 @@ class SiameseModel(link.Chain):
     def predict(self, x, t):
         x0, = x
         t0, = t
-        return self.y = self.predictor(x0)
+        return self.predictor(x0)
