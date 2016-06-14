@@ -20,3 +20,8 @@ class SiameseModel(link.Chain):
         self.y1 = self.predictor(x1)
         self.loss = self.lossfun(self.y0, self.y1, t0)
         return self.loss
+
+    def predict(self, x, t):
+        x0, = x
+        t0, = t
+        return self.y = self.predictor(x0)

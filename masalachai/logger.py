@@ -35,6 +35,18 @@ class Logger(object):
         if self.cheryl:
             self.bot.post_direct_message_by(self.user, '['+os.uname()[1]+'] '+msg)
 
+    def log(self, itr, loss, acc=None, train=True):
+        if train and acc is not None:
+            log_str = '{0:d}, loss={1:.5f}, accuracy={2:.5f}'.format(itr, loss, acc)
+        elif train and acc is None:
+            log_str = '{0:d}, loss={1:.5f}'.format(itr, loss)
+        elif not train and acc is not None:
+            log_str = '[TEST], loss={0:.5f}, accuracy={1:.5f}'.format(loss, acc)
+        elif not train and acc is None:
+            log_str = '[TEST], loss={0:.5f}'.format(loss)
+        self.__call__(log_str)
+
+
     def loss_acc_log(self, itr, loss, acc):
         log_str = '{0:d}, loss={1:.5f}, accuracy={2:.5f}'.format(itr, loss, acc)
         self.__call__(log_str)

@@ -62,14 +62,15 @@ class Trainer(object):
         self.optimizer.target.predictor.train = not train
 
 
-    def train(self, nitr, batchsize, log_interval=100, test_interval=1000, test_batchsize=100, test_nitr=1, accuracy=True):
+    def train(self, nitr, batchsize, log_interval=100, test_interval=1000, test_batchsize=100, test_nitr=1):
         # training
         self.train_batch = self.train_data.batch(batchsize, shuffle=True)
         supervised_loss = 0.
         train_acc = 0.
         for i in six.moves.range(1, nitr+1):
             supervised_loss += float(self.supervised_update(batchsize))
-            train_acc += float(self.optimizer.target.accuracy.data)
+            if train_acc:
+                train_acc += float(self.optimizer.target.accuracy.data) if self.optimizer.target.accuracy is not None else 0.
             self.optimizer_param_process(i)
 
             # logging
@@ -97,7 +98,7 @@ class Trainer(object):
         self.test_batch = self.test_data.batch(batchsize, shuffle=False)
         for i in six.moves.range(nitr):
             self.predict(batchsize)
-            acc += self.optimizer.target.accuracy.data
+            acc += float(self.optimizer.target.accuracy.data) if self.optimizer.target.accuracy is not None else 0.
             loss += self.optimizer.target.loss.data
         # logging
         if self.logging:
