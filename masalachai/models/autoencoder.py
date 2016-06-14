@@ -16,7 +16,7 @@ class AutoencodeModel(link.Chain):
         self.y = None
         self.loss = None
         self.y = self.predictor(x)
-        self.loss = self.lossfun(self.y)
+        self.loss = self.lossfun(x, self.y)
         return self.loss
 
     def predict(self, x):
