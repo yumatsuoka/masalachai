@@ -34,18 +34,18 @@ class AutoencodeTrainer(Trainer):
         xp = cuda.cupy if self.gpu >= 0 else numpy
 
         # read data
-        data = self.test_batch.next()
+        data = self.train_batch.next()
         for func in self._preprocess_hooks:
             data = func(data)
         vx = tuple([chainer.Variable(xp.asarray(d), volatile='on') for d in data['data']])
 
         # forward
         self.optimizer.target.predictor.train = train
-        ret = self.optimizer.target.encode(vx)
+        ret = self.optimizer.target.predict(vx)
         self.optimizer.target.predictor.train = not train
         return ret
 
-    def train(self, nitr, batchsize, log_interval=100, test_interval=1000, test_batchsize=100, test_nitr=1):
+    def train(self, nitr, batchsize, log_interval=100):
         # training
         self.train_batch = self.train_data.batch(batchsize, shuffle=True)
         supervised_loss = 0.

@@ -15,11 +15,13 @@ class AutoencodeModel(link.Chain):
     def __call__(self, x):
         self.y = None
         self.loss = None
-        self.y = self.predictor(x)
-        self.loss = self.lossfun(x, self.y)
+        x0, = x
+        self.y = self.predictor(x0)
+        self.loss = self.lossfun(x0, self.y)
         return self.loss
 
     def predict(self, x):
-        self.h = self.predictor.encode(x)
+        x0, = x
+        self.h = self.predictor.encode(x0)
         return self.h
 
