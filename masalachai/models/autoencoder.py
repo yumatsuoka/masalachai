@@ -25,3 +25,8 @@ class AutoencodeModel(link.Chain):
         self.h = self.predictor.encode(x0)
         return self.h
 
+    def reconstruct(self, x):
+        x0, = x
+        self.h = self.predictor.decode(x0)
+        return self.h
+
