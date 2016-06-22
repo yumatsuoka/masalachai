@@ -9,12 +9,7 @@ from masalachai.datafeeder import DataFeeder
 
 class Trainer(object):
     # モデルの学習を制御するクラス
-    _preprocess_hooks = []
     _optimizer_param_schedulers = []
-
-    # 並列処理用の共有メモリ
-    _data_queue = queue.Queue()
-    _log_queue = queue.Queue()
 
     def __init__(self, optimizer, train_data, logger, gpu=-1):
         self.optimizer = optimizer
@@ -23,13 +18,11 @@ class Trainer(object):
         self.gpu = gpu
 
         # 並列処理用のメモリを各モジュールに登録
+        self._data_queue = queue.Queue()
+        self._log_queue = queue.Queue()
         self.train_data.setQueue(self._data_queue)
         self.logger.setQueue(self._log_queue)
 
-
-    def hook_preprocess(self, func):
-        # データの前処理関数の登録
-        self._preprocess_hooks.append(func)
 
     def add_optimizer_scheduler(self, s):
         # Optimizer のパラメータスケジューラの登録
@@ -47,8 +40,13 @@ class Trainer(object):
 
     def train(self, nitr, batchsize):
         # 学習を実行
+        self.logger.start()
+        # something
+        _log_queue.put('END')
+        self.logger.join()
         raise NotImplementedError
 
     def test(self, nitr, batchsize):
         # テストを実行
         raise NotImplementedError
+
