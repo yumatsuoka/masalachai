@@ -1,4 +1,5 @@
 import numpy
+import six
 import chainer
 from chainer import cuda
 
@@ -39,26 +40,28 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
         def kl_divergence(p, q, eps=10e-8):
             return chainer.functions.sum(p * (chainer.functions.log(p+eps) - chainer.functions.log(q+eps))) / p.data.shape[0]
 
-        xp = cuda.cupy.get_array_module(x.data)
+        xp = cuda.cupy if self.gpu >= 0 else numpy
 
-        p = chainer.functions.softmax(self.optimizer.target.predictor(x))
+        x0, = x
+
+        p = chainer.functions.softmax(self.optimizer.target.predictor(x0))
         p.unchain_backward()
 
         # init d as a random unit vector
-        d = xp.random.normal(size=x.data.shape).astype(xp.float32)
+        d = xp.random.normal(size=x0.data.shape).astype(xp.float32)
         d = d / xp.sqrt(xp.sum(d*d, axis=1)).reshape(d.shape[0], 1)
 
         # approximate r_vadv by power iteration method
-        r = xp.zeros(x.data.shape, dtype=xp.float32)
+        r = xp.zeros(x0.data.shape, dtype=xp.float32)
         vr = chainer.Variable(r, volatile='off')
         for ip in six.moves.range(self.pitr):
             vd = chainer.Variable(d)
-            q = chainer.functions.softmax(self.optimizer.target.predictor(x+vr+self.xi*d))
+            q = chainer.functions.softmax(self.optimizer.target.predictor(x0+vr+self.xi*d))
             k = kl_divergence(p, q)
             k.backward()
             d = vr.grad / xp.sqrt(xp.sum(vr.grad*vr.grad, axis=1)).reshape(d.shape[0], 1)
         self.r_vadv = chainer.Variable(self.eps * d)
-        q_vadv = chainer.functions.softmax(self.optimizer.target.predictor(x+self.r_vadv))
+        q_vadv = chainer.functions.softmax(self.optimizer.target.predictor(x0+self.r_vadv))
         self.lds_loss = self.lam * kl_divergence(p, q_vadv)
         return self.lds_loss
 

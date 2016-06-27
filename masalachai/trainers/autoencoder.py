@@ -5,10 +5,10 @@ from chainer import cuda
 from masalachai import Trainer
 
 class AutoencoderTrainer(Trainer):
-    def __init__(self, optimizer, logger, train_data_feeders, gpu=-1):
-        super(AutoencoderTrainer, self).__init__(optimizer, logger, train_data_feeders, gpu=gpu)
+    def __init__(self, optimizer, logger, train_data_feeders, test_data_feeder=None, gpu=-1):
+        super(AutoencoderTrainer, self).__init__(optimizer, logger, train_data_feeders, test_data_feeder=test_data_feeder, gpu=gpu)
 
-    def update(self, batchsize):
+    def update(self):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy
 
@@ -23,7 +23,7 @@ class AutoencoderTrainer(Trainer):
         res = {'loss': float(self.optimizer.target.loss.data)}
         return res
 
-    def predict(self, batchsize, train=False):
+    def predict(self, train=False):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy
 

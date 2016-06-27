@@ -4,5 +4,5 @@ from masalachai.models import autoencoder
 
 ClassifierModel = classifier.ClassifierModel
 SiameseModel = siamese.SiameseModel
-AutoencodeModel = autoencoder.AutoencodeModel
+AutoencoderModel = autoencoder.AutoencoderModel
 

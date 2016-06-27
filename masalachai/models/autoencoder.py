@@ -4,9 +4,9 @@ from masalachai import Model
 from chainer.functions import mean_squared_error
 
 ## Autoencoder Wrapper
-class AutoencodeModel(Model):
+class AutoencoderModel(Model):
     def __init__(self, encoder, decoder, lossfun=mean_squared_error):
-        super(AutoencodeModel, self).__init__(encoder, lossfun)
+        super(AutoencoderModel, self).__init__(encoder, lossfun)
         self.decoder = decoder
         self.z = None
 

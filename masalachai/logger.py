@@ -52,24 +52,24 @@ class Logger(threading.Thread):
             if getattr(res,'__hash__',False) and res in self.mode:
                 log_func = self.mode[res]
                 continue
-            log_func(res)
+            self.__call__(log_func(res))
 
 
     def log_train(self, res):
         log_str = '{0:d}, loss={1:.5f}, accuracy={2:.5f}'.format(res['iteration'], res['loss'], res['accuracy'])
-        self.__call__(log_str)
+        return log_str
 
     def log_train_loss_only(self, res):
         log_str = '{0:d}, loss={1:.5f}'.format(res['iteration'], res['loss'])
-        self.__call__(log_str)
+        return log_str
 
     def log_test(self, res):
         log_str = '[TEST], loss={0:.5f}, accuracy={1:.5f}'.format(res['loss'], res['accuracy'])
-        self.__call__(log_str)
+        return log_str
 
     def log_test_loss_only(self, res):
         log_str = '[TEST], loss={0:.5f}'.format(res['loss'])
-        self.__call__(log_str)
+        return log_str
 
     def log_end(self, *args):
         self.stop.set()
