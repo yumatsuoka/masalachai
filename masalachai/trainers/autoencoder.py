@@ -1,63 +1,40 @@
 import numpy
-import six
 import chainer
 from chainer import cuda
 
 from masalachai import Trainer
-from masalachai import Logger
 
-class AutoencodeTrainer(Trainer):
-    def __init__(self, optimizer, data_feeder, gpu, logging=True, logfile=None, logcheryl=None, loguser=None):
-        self.optimizer = optimizer
-        self.train_data = data_feeder
-        self.gpu = gpu
-        self.logging = logging
-        if self.logging:
-            self.logger = Logger(__name__, tofile=logfile, tocheryl=logcheryl, touser=loguser)
+class AutoencoderTrainer(Trainer):
+    def __init__(self, optimizer, logger, train_data_feeders, gpu=-1):
+        super(AutoencoderTrainer, self).__init__(optimizer, logger, train_data_feeders, gpu=gpu)
 
-    def supervised_update(self, batchsize):
+    def update(self, batchsize):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy
 
         # read data
-        data = self.train_batch.next()
-        for func in self._preprocess_hooks:
-            data = func(data)
-        vx = tuple([chainer.Variable(xp.asarray(d)) for d in data['data']])
+        data = self.train_data_queues[0].get()
+        vx = tuple( [ chainer.Variable( xp.asarray(data[k]) ) for k in data.keys() if 'data' in k ] )
 
         # forward and update
         self.optimizer.update(self.optimizer.target, vx)
-        return self.optimizer.target.loss.data
+
+        # get result
+        res = {'loss': float(self.optimizer.target.loss.data)}
+        return res
 
     def predict(self, batchsize, train=False):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy
 
         # read data
-        data = self.train_batch.next()
-        for func in self._preprocess_hooks:
-            data = func(data)
-        vx = tuple([chainer.Variable(xp.asarray(d), volatile='on') for d in data['data']])
+        data = self.test_data_queue.get()
+        vx = tuple( [ chainer.Variable( xp.asarray(data[k]), volatile='on' ) for k in data.keys() if 'data' in k ] )
 
         # forward
-        self.optimizer.target.predictor.train = train
-        ret = self.optimizer.target.predict(vx)
-        self.optimizer.target.predictor.train = not train
-        return ret
+        self.optimizer.target(vx, train=train)
 
-    def train(self, nitr, batchsize, log_interval=100):
-        # training
-        self.train_batch = self.train_data.batch(batchsize, shuffle=True)
-        supervised_loss = 0.
-        for i in six.moves.range(1, nitr+1):
-            supervised_loss += float(self.supervised_update(batchsize))
-            self.optimizer_param_process(i)
+        # get result
+        res = {'loss': float(self.optimizer.target.loss.data)}
+        return res
 
-            # logging
-            if i % log_interval == 0 and self.logging:
-                self.logger.loss_log(i, supervised_loss/log_interval)
-                supervised_loss = 0.
-
-        # logging
-        if self.logging:
-            self.logger.loss_log(nitr, supervised_loss / ((nitr%log_interval)+1))
