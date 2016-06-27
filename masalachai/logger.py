@@ -9,6 +9,7 @@ class Logger(threading.Thread):
 
     def __init__(self, name, level=logging.INFO, logfile=None, train_log_mode='TRAIN', test_log_mode='TEST'):
         super(Logger, self).__init__()
+        self.setDaemon(True)
 
         # stream handler setting
         self.handler = logging.StreamHandler()
@@ -26,7 +27,7 @@ class Logger(threading.Thread):
             self.file_handler.setFormatter(self.formatter)
             self.logger.addHandler(self.file_handler)
         
-        self.mode = {'TRAIN': self.train_log, 'TRAIN_LOSS_ONLY': self.train_loss_log, 'TEST': self.test_log, 'TEST_LOSS_ONLY': self.test_loss_log, 'END': self.log_end}
+        self.mode = {'TRAIN': self.log_train, 'TRAIN_LOSS_ONLY': self.log_train_loss_only, 'TEST': self.log_test, 'TEST_LOSS_ONLY': self.log_test_loss_only, 'END': self.log_end}
         self.train_log_mode = train_log_mode
         self.test_log_mode = test_log_mode
         self.queue = None
@@ -43,12 +44,12 @@ class Logger(threading.Thread):
 
     def run(self):
         # queue check
-        assert self.queue is None, "Log Queue is None, use Logger.setQueue(queue) before calling me."
+        assert self.queue is not None, "Log Queue is None, use Logger.setQueue(queue) before calling me."
 
         self.stop = threading.Event()
         while not self.stop.is_set():
             res = self.queue.get()
-            if res in self.mode:
+            if getattr(res,'__hash__',False) and res in self.mode:
                 log_func = self.mode[res]
                 continue
             log_func(res)
@@ -60,7 +61,6 @@ class Logger(threading.Thread):
 
     def log_train_loss_only(self, res):
         log_str = '{0:d}, loss={1:.5f}'.format(res['iteration'], res['loss'])
-
         self.__call__(log_str)
 
     def log_test(self, res):

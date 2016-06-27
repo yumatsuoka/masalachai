@@ -12,8 +12,6 @@ from chainer import cuda, optimizers
 import mnist
 
 # import model network
-import sys
-sys.path.append('../../masalachai')
 from masalachai import DataFeeder
 from masalachai import Trainer
 from mlp import Mlp

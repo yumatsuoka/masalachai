@@ -1,32 +1,26 @@
 # -*- coding: utf-8 -*-
 
-from chainer import link
+from masalachai import Model
 from chainer.functions import mean_squared_error
 
 ## Autoencoder Wrapper
-class AutoencodeModel(link.Chain):
-    def __init__(self, predictor, lossfun=mean_squared_error):
-        super(AutoencodeModel, self).__init__(predictor=predictor)
-        self.lossfun = lossfun
-        self.h = None
-        self.y = None
-        self.loss = None
+class AutoencodeModel(Model):
+    def __init__(self, encoder, decoder, lossfun=mean_squared_error):
+        super(AutoencodeModel, self).__init__(encoder, lossfun)
+        self.decoder = decoder
+        self.z = None
 
-    def __call__(self, x):
+    def __call__(self, x, train=True):
         self.y = None
         self.loss = None
         x0, = x
-        self.y = self.predictor(x0)
-        self.loss = self.lossfun(x0, self.y)
+        self.y = self.predictor(x0, train=train)
+        self.z = self.decoder(self.y, train=train)
+        self.loss = self.lossfun(x0, self.z)
         return self.loss
 
-    def predict(self, x):
-        x0, = x
-        self.h = self.predictor.encode(x0)
-        return self.h
-
-    def reconstruct(self, x):
-        x0, = x
-        self.h = self.predictor.decode(x0)
-        return self.h
+    def decode(self, y, train=False):
+        y0, = y
+        self.z = self.decoder(y0, train=train)
+        return self.z
 
