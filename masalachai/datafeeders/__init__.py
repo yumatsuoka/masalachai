@@ -1,5 +1,3 @@
 from masalachai.datafeeders import siamese_datafeeder
-from masalachai.datafeeders import autoencode_datafeeder
 
 SiameseFeeder = siamese_datafeeder.SiameseFeeder
-AutoencodeFeeder = autoencode_datafeeder.AutoencodeFeeder

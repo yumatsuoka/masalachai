@@ -22,8 +22,9 @@ class SupervisedTrainer(Trainer):
         self.optimizer.update(self.optimizer.target, vx, vt)
 
         # get result
-        res = {'loss': float(self.optimizer.target.loss.data),
-               'accuracy': float(self.optimizer.target.accuracy.data)}
+        res = {'loss': float(self.optimizer.target.loss.data)}
+        if self.optimizer.target.accuracy is not None:
+            res['accuracy'] = float(self.optimizer.target.accuracy.data)
         return res
 
     def update(self):
@@ -43,7 +44,8 @@ class SupervisedTrainer(Trainer):
         self.optimizer.target(vx, vt, train=train)
 
         # get result
-        res = {'loss': float(self.optimizer.target.loss.data),
-               'accuracy': float(self.optimizer.target.accuracy.data)}
+        res = {'loss': float(self.optimizer.target.loss.data)}
+        if self.optimizer.target.accuracy is not None:
+            res['accuracy'] = float(self.optimizer.target.accuracy.data)
         return res
 
