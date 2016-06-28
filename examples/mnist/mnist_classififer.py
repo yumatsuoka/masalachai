@@ -5,17 +5,16 @@ import argparse
 import numpy as np
 import chainer
 import chainer.functions as F
-import chainer.links as L
 from chainer import cuda, optimizers
 
 # import dataset script
 import mnist
 
 # import model network
-import sys
-sys.path.append('../../masalachai')
 from masalachai import DataFeeder
-from masalachai import Trainer
+from masalachai import Logger
+from masalachai import trainers
+from masalachai import models
 from mlp import Mlp
 
 # argparse
@@ -30,6 +29,9 @@ def mnist_preprocess(data):
     data['data'] /= 255.
     return data
 
+# Logger setup
+logger = Logger('MNIST MLP')
+
 # Configure GPU Device
 if args.gpu >= 0:
     cuda.check_cuda_available()
@@ -41,28 +43,33 @@ dim = dataset['train']['data'][0].size
 N_train = len(dataset['train']['target'])
 N_test = len(dataset['test']['target'])
 train_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).astype(np.float32),
-              'target':dataset['train']['target'].astype(np.int32)}
+                   'target':dataset['train']['target'].astype(np.int32)}
 test_data_dict = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.float32),
-             'target':dataset['test']['target'].astype(np.int32)}
-train_data = DataFeeder(data_dict=train_data_dict)
-test_data = DataFeeder(data_dict=test_data_dict)
+                  'target':dataset['test']['target'].astype(np.int32)}
+train_data = DataFeeder(train_data_dict)
+test_data = DataFeeder(test_data_dict)
+
+train_data.hook_preprocess(mnist_preprocess)
+test_data.hook_preprocess(mnist_preprocess)
 
 
 # Model Setup
 h_units = 1200
-model = L.Classifier(Mlp(train_data['data'][0].size, h_units, h_units, np.max(train_data['target'])+1))
+model = models.ClassifierModel(Mlp(train_data['data'][0].size, h_units, h_units, np.max(train_data['target'])+1))
 if args.gpu >= 0:
     cuda.get_device(args.gpu).use()
     model.to_gpu()
+
 
 # Opimizer Setup
 optimizer = optimizers.Adam()
 optimizer.setup(model)
 
-trainer = Trainer(optimizer, train_data, test_data, args.gpu)
-trainer.hook(mnist_preprocess)
-trainer.train(args.epoch*N_train/args.batch, 
-              args.batch, 
+
+trainer = trainers.SupervisedTrainer(optimizer, logger, (train_data,), test_data, args.gpu)
+trainer.train(int(args.epoch*N_train/args.batch), 
+              (args.batch,),
               test_interval=N_train/args.batch, 
               test_nitr=N_test/args.valbatch,
               test_batchsize=args.valbatch)
+
