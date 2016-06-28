@@ -7,6 +7,7 @@ from chainer.functions import contrastive
 class SiameseModel(Model):
     def __init__(self, predictor, lossfun=contrastive):
         super(SiameseModel, self).__init__(predictor, lossfun)
+        self.discriminator = masalachai.models.SupervisedModel(decoder)
 
     def __call__(self, x, t, train=True):
         self.y = None

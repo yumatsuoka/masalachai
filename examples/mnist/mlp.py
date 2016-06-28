@@ -12,9 +12,8 @@ class Mlp(chainer.Chain):
                 bn2 = L.BatchNormalization(hidden2_size),
                 fc3 = L.Linear(hidden2_size, out_size),
         )
-        self.train = True
 
-    def __call__(self, x, t=None):
+    def __call__(self, x, t=None, train=True):
         h = F.relu(self.bn1(self.fc1(x)))
         h = F.relu(self.bn2(self.fc2(h)))
         return self.fc3(h)
