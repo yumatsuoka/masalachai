@@ -86,14 +86,21 @@ def random_zoom(x, zoom_range, row_index=1, col_index=2, channel_index=0,
     return x
 
 
-def load_img(path, grayscale=False, target_size=None):
+def load_image(path, grayscale=False, target_size=None):
     from PIL import Image
     img = Image.open(path)
     if grayscale:
         img = img.convert('L')
     else:  # Ensure 3 channel even when loaded image is grayscale
         img = img.convert('RGB')
+
     if target_size:
         img = img.resize(target_size)
-    return numpy.asarray(img, dtype='numpy.float32')
+
+    img_ary = numpy.asarray(img, dtype=numpy.float32)
+
+    if grayscale:
+        img_ary = numpy.expand_dims(img_ary, 0)
+
+    return img_ary
 

@@ -12,6 +12,7 @@ setup(
         version = '0.3.10',
         packages = ['masalachai',
                     'masalachai.datafeeders',
+                    'masalachai.preprocesses',
                     'masalachai.trainers',
                     'masalachai.models',
                     'masalachai.optimizer_schedulers'],
