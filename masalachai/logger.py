@@ -9,7 +9,7 @@ class Logger(threading.Thread):
 
     Logger は，学習時の目的関数値や正解率などを出力するクラスです．
 
-    このクラスは標準ライブラリモジュールloggingをラップしているため，
+    このクラスは標準ライブラリモジュール`logging <http://docs.python.jp/3/library/logging.html>`_ をラップしているため，
     このクラスでは，loggingモジュールの機能を利用する事ができます．
 
     Args:
@@ -87,7 +87,7 @@ class Logger(threading.Thread):
         ログスレッドを走らせます．
 
         .. note::
-            このクラスはthreading.Threadのサブクラスです．
+            このクラスは`threading.Thread <http://docs.python.jp/3/library/threading.html#thread-objects>`_ のサブクラスです．
             ログスレッドを走らせるには，start() メソッドを呼び出してください．
 
             ログスレッドを終了させるには，self.log_end()を呼び出すか，
