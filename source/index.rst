@@ -4,12 +4,15 @@
    contain the root `toctree` directive.
 
 Masalachai -- A easy wrapper of chainer
-======================================
+========================================
+
+the `Masalachai <https://github.com/DaikiShimada/masalachai>`_ documentation.
+Masalachai (マサラチャイ) は Deep Learning framework の chainer のためのラッパーです．
+ネットワークを学習させるために必要なメソッドやオブジェクトを実装しています．
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
 
     install
     reference/index
