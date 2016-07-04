@@ -122,7 +122,7 @@ class Trainer(object):
                 self.log_queue.put(train_res)
                 train_res = {}
             # test
-            if self.test_data_feeder is not None and i % test_interval == 0:
+            if hasattr(self, 'test_data_feeder') is not None and i % test_interval == 0:
                 test_res = self.test(test_nitr)
                 self.log_queue.put(self.logger.test_log_mode)
                 self.log_queue.put(test_res)

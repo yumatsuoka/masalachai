@@ -11,6 +11,7 @@ class AutoencoderTrainer(Trainer):
     def update(self):
         # array backend
         xp = cuda.cupy if self.gpu >= 0 else numpy
+        print xp
 
         # read data
         data = self.train_data_queues[0].get()
