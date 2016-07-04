@@ -94,7 +94,7 @@ class Trainer(object):
         # setting batchsize of datafeeders
         for tdf, batchsize in zip(self.train_data_feeders, batchsizes):
             tdf.batchsize = batchsize
-        if self.test_data_feeder is not None:
+        if hasattr(self, 'test_data_feeder'):
             self.test_data_feeder.batchsize = test_batchsize
         
         # setting stop event for data feeder and start threads
