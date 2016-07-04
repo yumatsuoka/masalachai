@@ -12,14 +12,14 @@ class Model(link.Chain):
     分類タスクや領域分割タスク，自己符号化などを実行することができます．
 
     Args:
-        predictor (chainer.Chain): ネットワーク構造
-        lossfun (function): 目的関数
+        predictor (chainer.Chain): ネットワーク構造.
+        lossfun (function): 目的関数.
 
     Attributes:
-        lossfun (function): 目的関数
-        y (chainer.Variable): 最後の入力バッチに対する推論結果
-        loss (chainer.Variable): 最後の入力バッチに対する目的関数の出力
-        accuracy (chainer.Variable): 最後の入力バッチに対する正解率
+        lossfun (function): 目的関数.
+        y (chainer.Variable): 最後の入力バッチに対する推論結果.
+        loss (chainer.Variable): 最後の入力バッチに対する目的関数の出力.
+        accuracy (chainer.Variable): 最後の入力バッチに対する正解率.
     """
 
     def __init__(self, predictor, lossfun=identity):

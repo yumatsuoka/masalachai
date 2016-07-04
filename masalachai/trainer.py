@@ -2,7 +2,6 @@ import time
 import numpy
 import six
 import chainer
-import queue
 import threading
 from chainer import cuda
 
@@ -37,16 +36,16 @@ class Trainer(object):
 
         # for train data feeder
         self.train_data_feeders = train_data_feeders
-        self.train_data_queues = [queue.Queue(self.queue_size) for i in six.moves.range(len(self.train_data_feeders))]
+        self.train_data_queues = [six.moves.queue.Queue(self.queue_size) for i in six.moves.range(len(self.train_data_feeders))]
 
         # for test data feeder
         if test_data_feeder is not None:
             self.test_data_feeder = test_data_feeder
-            self.test_data_queue = queue.Queue(self.queue_size)
+            self.test_data_queue = six.moves.queue.Queue(self.queue_size)
 
         # for logger
         self.logger = logger
-        self.log_queue = queue.Queue()
+        self.log_queue = six.moves.queue.Queue()
         self.logger.setQueue(self.log_queue)
 
         self._optimizer_param_schedulers = []
