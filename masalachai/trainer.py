@@ -52,12 +52,12 @@ class Trainer(object):
 
 
     def add_optimizer_scheduler(self, s):
-        # Optimizer のパラメータスケジューラの登録
+        # register Optimizer scheduler 
         self._optimizer_param_schedulers.append(s)
 
 
     def optimizer_param_process(self, t):
-        # Optimizer のパラメータスケジューラの駆動
+        # drive Optimizer scheduler
         for s in self._optimizer_param_schedulers:
             self.optimizer.__dict__[s.param_name] = s.next(t)
 

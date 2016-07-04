@@ -22,8 +22,8 @@ class Model(link.Chain):
         accuracy (chainer.Variable): 最後の入力バッチに対する正解率.
     """
 
-    def __init__(self, predictor, lossfun=identity):
-        super(Model, self).__init__(predictor=predictor)
+    def __init__(self, predictor, lossfun=identity, **links):
+        super(Model, self).__init__(predictor=predictor, **links)
         self.lossfun = lossfun
         self.y = None
         self.loss = None
