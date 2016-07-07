@@ -64,7 +64,7 @@ class DataFeeder(object):
 
 
     def get_data_dict_from_list(self, dict_list):
-        return {k:numpy.asarray([d[k] for d in dict_list]) for k in dict_list[0].keys() if 'data' in k or 'target' in k}
+        return {k:numpy.stack([d[k] for d in dict_list]) for k in dict_list[0].keys() if 'data' in k or 'target' in k}
 
 
     def run(self):
