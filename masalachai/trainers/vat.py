@@ -5,6 +5,9 @@ from chainer import cuda
 
 from masalachai.trainers.supervised_trainer import SupervisedTrainer
 
+def _axis_tuple(ary):
+    return tuple([i for i in six.moves.range(ary.ndim)])
+
 class VirtualAdversarialTrainer(SupervisedTrainer):
     def __init__(self, optimizer, logger, train_data_feeders, test_data_feeder, gpu=-1,
                  eps=4.0, xi=0.1, lam=1., pitr=1):
@@ -49,7 +52,8 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
 
         # init d as a random unit vector
         d = xp.random.normal(size=x0.data.shape).astype(xp.float32)
-        d = d / xp.sqrt(xp.sum(d*d, axis=1)).reshape(d.shape[0], 1)
+        #d = d / xp.sqrt(xp.sum(d*d, axis=d.shape[1:])).reshape(d.shape[0], 1)
+        d = d / xp.sqrt(xp.sum(d*d, axis=_axis_tuple(d)[1:], keepdims=True))
 
         # approximate r_vadv by power iteration method
         r = xp.zeros(x0.data.shape, dtype=xp.float32)
@@ -59,7 +63,7 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
             q = chainer.functions.softmax(self.optimizer.target.predictor(x0+vr+self.xi*d))
             k = kl_divergence(p, q)
             k.backward()
-            d = vr.grad / xp.sqrt(xp.sum(vr.grad*vr.grad, axis=1)).reshape(d.shape[0], 1)
+            d = vr.grad / xp.sqrt(xp.sum(vr.grad*vr.grad, axis=_axis_tuple(d)[1:], keepdims=True))
         self.r_vadv = chainer.Variable(self.eps * d)
         q_vadv = chainer.functions.softmax(self.optimizer.target.predictor(x0+self.r_vadv))
         self.lds_loss = self.lam * kl_divergence(p, q_vadv)
