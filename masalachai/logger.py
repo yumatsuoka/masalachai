@@ -45,7 +45,7 @@ class Logger(threading.Thread):
 
         # file handler setting
         if logfile is not None:
-            self._file_handler = logging.FileHandler(logfile)
+            self._file_handler = logging.FileHandler(logfile, mode='w')
             self._file_handler.setFormatter(self.formatter)
             self._logger.addHandler(self._file_handler)
         
