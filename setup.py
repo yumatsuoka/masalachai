@@ -9,11 +9,12 @@ install_requires = [ pandas_version, six_version, chainer_version ]
 
 setup(
         name = 'masalachai',
-        version = '0.3.17',
+        version = '0.3.19',
         packages = ['masalachai',
                     'masalachai.datafeeders',
                     'masalachai.preprocesses',
                     'masalachai.trainers',
+                    'masalachai.loggers',
                     'masalachai.models',
                     'masalachai.optimizer_schedulers'],
         description = 'Masala Chai: easy chainer tool',
