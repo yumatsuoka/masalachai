@@ -25,6 +25,8 @@ parser.add_argument('--valbatch', '-v', type=int, default=1000, help='validation
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if you want to use cpu, use -1 (default: -1)')
 args = parser.parse_args()
 
+a = 'hoge'
+
 def mnist_preprocess(data):
     data['data'] /= 255.
     return data
