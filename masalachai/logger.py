@@ -80,6 +80,15 @@ class Logger(threading.Thread):
 
         self.queue = queue
 
+    def post_log(self):
+        """ Post-process for end of thread
+
+        ログスレッドが終了するときに必要な処理を行います．
+        Loggerクラス上では，特に何も行われません．
+
+        """
+        pass
+
 
     def run(self):
         """ Running logging thread
@@ -108,6 +117,8 @@ class Logger(threading.Thread):
                     self.stop.set()
                 continue
             self.__call__(log_func(res))
+
+        self.post_log()
 
 
     def log_train(self, res):
