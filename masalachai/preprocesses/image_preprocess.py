@@ -178,7 +178,7 @@ def load_image(path,
     if grayscale:
         img_ary = numpy.expand_dims(img_ary, -1)
 
-    img_ary = img_ary.transpose(1,2,0)
+    img_ary = img_ary.transpose(2,0,1)
 
     return img_ary
 
