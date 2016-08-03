@@ -7,7 +7,7 @@ from chainer.functions import accuracy
 ## classification network wapper
 class ClassifierModel(Model):
     def __init__(self, predictor, lossfun=softmax_cross_entropy, accuracyfun=accuracy):
-        super(ClassifierModel, self).__init__(predictor, lossfun)
+        super(ClassifierModel, self).__init__(predictor, lossfun, accuracyfun)
 
     def __call__(self, x, t, train=True, compute_accuracy=True):
         self.loss = None
@@ -17,7 +17,7 @@ class ClassifierModel(Model):
         self.y = self.predictor(x0, train=train)
         self.loss = self.lossfun(self.y, t0)
         if compute_accuracy:
-            self.accuracy = accuracyfun(self.y, t0)
+            self.accuracy = self.accuracyfun(self.y, t0)
         return self.loss
 
     def predict(self, x):

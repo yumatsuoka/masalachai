@@ -2,6 +2,7 @@
 
 from chainer import link
 from chainer.functions import identity
+from chainer.functions import accuracy
 
 class Model(link.Chain):
     """ Abstract Model Class
@@ -14,17 +15,20 @@ class Model(link.Chain):
     Args:
         predictor (chainer.Chain): ネットワーク構造.
         lossfun (function): 目的関数.
+        accuracyfun (function): 評価関数.
 
     Attributes:
         lossfun (function): 目的関数.
+        accuracyfun (function): 評価関数.
         y (chainer.Variable): 最後の入力バッチに対する推論結果.
         loss (chainer.Variable): 最後の入力バッチに対する目的関数の出力.
         accuracy (chainer.Variable): 最後の入力バッチに対する正解率.
     """
 
-    def __init__(self, predictor, lossfun=identity, **links):
+    def __init__(self, predictor, lossfun=identity, accuracyfun=accuracy, **links):
         super(Model, self).__init__(predictor=predictor, **links)
         self.lossfun = lossfun
+        self.accuracyfun = accuracyfun
         self.y = None
         self.loss = None
         self.accuracy = None
