@@ -6,12 +6,12 @@ from chainer.functions import accuracy
 
 ## classification network wapper
 class ClassifierModel(Model):
-    def __init__(self, predictor, lossfun=softmax_cross_entropy):
+    def __init__(self, predictor, lossfun=softmax_cross_entropy, accuracyfun=accuracy):
         super(ClassifierModel, self).__init__(predictor, lossfun)
 
     def __call__(self, x, t, train=True, compute_accuracy=True):
         self.loss = None
-        self.accracy = None
+        self.accuracy = None
         x0, = x
         t0, = t
         self.y = self.predictor(x0, train=train)
