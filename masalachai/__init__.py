@@ -10,7 +10,7 @@ from masalachai import trainer
 from masalachai import trainers
 from masalachai import model
 from masalachai import models
-from masalachai import preprocessers
+from masalachai import preprocesses
 
 __version__ = pkg_resources.get_distribution('masalachai').version
 
