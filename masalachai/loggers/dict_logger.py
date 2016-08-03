@@ -26,7 +26,7 @@ class DictLogger(Logger):
 
 
     def post_log(self):
-        if not os.path.exists(os.path.dirname(self.output_file)):
+        if (len(os.path.dirname(self.output_file)) > 0) and (not os.path.exists(os.path.dirname(self.output_file))):
             os.makedirs(os.path.dirname(self.output_file))
 
         with open(self.output_file, 'w') as f:
