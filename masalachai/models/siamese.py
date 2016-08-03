@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from masalachai import Model
+from masalachai.model import Model
 from chainer.functions import contrastive
 
 ## Siamese Network Wrapper

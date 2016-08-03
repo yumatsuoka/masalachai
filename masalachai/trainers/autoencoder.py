@@ -2,7 +2,7 @@ import numpy
 import chainer
 from chainer import cuda
 
-from masalachai import Trainer
+from masalachai.trainer import Trainer
 
 class AutoencoderTrainer(Trainer):
     def __init__(self, optimizer, logger, train_data_feeders, test_data_feeder=None, gpu=-1):

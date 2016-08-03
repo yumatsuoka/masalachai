@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from masalachai import Model
+from masalachai.model import Model
 from chainer.functions import softmax_cross_entropy
 from chainer.functions import accuracy
 

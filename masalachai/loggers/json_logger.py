@@ -3,7 +3,7 @@
 import logging
 import json
 from pythonjsonlogger import jsonlogger
-from masalachai import Logger
+from masalachai.logger import Logger
 
 class JsonLogger(Logger):
 

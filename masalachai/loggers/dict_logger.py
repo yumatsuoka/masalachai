@@ -2,7 +2,7 @@
 
 import os
 import logging
-from masalachai import Logger
+from masalachai.logger import Logger
 
 class DictLogger(Logger):
 

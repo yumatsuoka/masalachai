@@ -6,7 +6,7 @@ import numpy
 import itertools
 
 import masalachai
-from masalachai import DataFeeder
+from masalachai.datafeeder import DataFeeder
 
 def siamese_preprocess(inp):
     data = {}
