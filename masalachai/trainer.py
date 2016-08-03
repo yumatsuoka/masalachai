@@ -87,16 +87,10 @@ class Trainer(object):
         raise NotImplementedError
 
 
-    def train(self, nitr, batchsizes, 
+    def train(self, nitr, 
               log_interval=1, 
-              test_interval=1, test_nitr=1, test_batchsize=1):
+              test_interval=1, test_nitr=1):
 
-        # setting batchsize of datafeeders
-        for tdf, batchsize in zip(self.train_data_feeders, batchsizes):
-            tdf.batchsize = batchsize
-        if hasattr(self, 'test_data_feeder'):
-            self.test_data_feeder.batchsize = test_batchsize
-        
         # setting stop event for data feeder and start threads
         stop_feeding = threading.Event()
         for tdf, q in zip(self.train_data_feeders, self.train_data_queues):
@@ -159,12 +153,10 @@ class Trainer(object):
 
         # end of testing
         stop_feeding.set()
-        print('called stop_feeding.set()')
 
         # clearn data queue
         while not self.test_data_queue.empty():
             self.test_data_queue.get()
-        print('called make data_queue empty')
 
         self.test_data_feeder.thread.join()
         return test_res

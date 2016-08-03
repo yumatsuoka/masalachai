@@ -10,7 +10,7 @@ install_requires = [ pandas_version, six_version, chainer_version, pythonjsonlog
 
 setup(
         name = 'masalachai',
-        version = '0.3.25',
+        version = '0.4.0',
         packages = ['masalachai',
                     'masalachai.datafeeders',
                     'masalachai.preprocesses',
