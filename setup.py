@@ -3,13 +3,13 @@
 from setuptools import setup
 
 pandas_version = 'pandas'
-six_version = 'six>=1.9.0'
-chainer_version = 'chainer>=1.8.2'
+six_version = 'six>=1.10.0'
+chainer_version = 'chainer>=1.12.0'
 install_requires = [ pandas_version, six_version, chainer_version ]
 
 setup(
         name = 'masalachai',
-        version = '0.3.20',
+        version = '0.3.21',
         packages = ['masalachai',
                     'masalachai.datafeeders',
                     'masalachai.preprocesses',

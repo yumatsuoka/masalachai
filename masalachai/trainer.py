@@ -159,10 +159,12 @@ class Trainer(object):
 
         # end of testing
         stop_feeding.set()
+        print('called stop_feeding.set()')
 
         # clearn data queue
         while not self.test_data_queue.empty():
             self.test_data_queue.get()
+        print('called make data_queue empty')
 
         self.test_data_feeder.thread.join()
         return test_res

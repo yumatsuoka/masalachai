@@ -7,6 +7,7 @@ import numpy
 import pandas
 import itertools
 
+
 def from_csv(filename):
     df = pandas.read_csv(fname)
     return DataFeeder(df.to_dict())
@@ -82,8 +83,11 @@ class DataFeeder(object):
 
                 self.queue.put(self.get_data_dict_from_list([p.get() for p in batch_pool]))
                 cnt += self.batchsize
-        pool.close()
-        pool.join()
+        try:
+            pool.close()
+        except:
+            pool.terminate()
+            raise
 
 
     def batch(self, batchsize):
