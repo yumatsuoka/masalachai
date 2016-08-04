@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import six
 import argparse
 import numpy as np
 import chainer
@@ -56,11 +57,11 @@ unlabeled_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).ast
 
 # making labeled data
 s_each = int(args.slabeled / 10)
-sample_breakdown = np.array([s_each for i in range(10)])
+sample_breakdown = np.array([s_each for i in six.moves.range(10)])
 labeled_data_samples = np.zeros((sample_breakdown.sum(), dim), dtype=np.float32)
 labeled_data_labels = np.zeros(sample_breakdown.sum(), dtype=np.int32)
 sp = 0
-for t in range(s_each):
+for t in six.moves.range(s_each):
     idx = np.where(dataset['train']['target']==t)[0][:sample_breakdown[t]]
     ep = sp + sample_breakdown[t]
     labeled_data_samples[sp:ep] =  unlabeled_data_dict['data'][idx]
