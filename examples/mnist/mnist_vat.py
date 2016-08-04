@@ -99,7 +99,7 @@ adam_alpha_scheduler = DecayOptimizerScheduler(optimizer, 'alpha', alpha_decay_i
 
 trainer = trainers.VirtualAdversarialTrainer(optimizer, logger, (labeled_data,unlabeled_data), test_data, args.gpu, eps=0.4, xi=0.001, lam=1.0)
 trainer.add_optimizer_scheduler(adam_alpha_scheduler)
-trainer.train(int(args.epoch*N_train/args.lbatch), 
+trainer.train(int(args.epoch*args.slabeled/args.lbatch), 
               log_interval=1,
               test_interval=100, 
               test_nitr=10)
