@@ -24,6 +24,7 @@ parser.add_argument('--epoch', '-e', type=int, default=10, help='training epoch 
 parser.add_argument('--lbatch', '-l', type=int, default=100, help='labeled training batchsize (default: 100)')
 parser.add_argument('--ubatch', '-u', type=int, default=250, help='unlabeled training batchsize (default: 250)')
 parser.add_argument('--valbatch', '-v', type=int, default=1000, help='validation batchsize (default: 1000)')
+parser.add_argument('--slabeled', '-s', type=int, default=100, help='size of labeled training samples (default: 100)')
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if you want to use cpu, use -1 (default: -1)')
 args = parser.parse_args()
 
