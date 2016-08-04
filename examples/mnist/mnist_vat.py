@@ -68,9 +68,9 @@ labeled_data_dict = {'data':labeled_data_samples,
                      'target':labeled_data_labels}
 
 
-labeled_data = DataFeeder(labeled_data_dict)
-unlabeled_data = DataFeeder(unlabeled_data_dict)
-test_data = DataFeeder(test_data_dict)
+labeled_data = DataFeeder(labeled_data_dict, batchsize=args.lbatch)
+unlabeled_data = DataFeeder(unlabeled_data_dict, batchsize=args.ubatch)
+test_data = DataFeeder(test_data_dict, batchsize=args.valbatch)
 
 labeled_data.hook_preprocess(mnist_preprocess)
 unlabeled_data.hook_preprocess(mnist_preprocess)
