@@ -55,11 +55,12 @@ test_data_dict = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.
 unlabeled_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).astype(np.float32)}
 
 # making labeled data
-sample_breakdown = np.array([10, 10, 10, 10, 10, 10, 10, 10, 10, 10])
+s_each = int(args.slabeled / 10)
+sample_breakdown = np.array([s_each for i in range(10)])
 labeled_data_samples = np.zeros((sample_breakdown.sum(), dim), dtype=np.float32)
 labeled_data_labels = np.zeros(sample_breakdown.sum(), dtype=np.int32)
 sp = 0
-for t in range(10):
+for t in range(s_each):
     idx = np.where(dataset['train']['target']==t)[0][:sample_breakdown[t]]
     ep = sp + sample_breakdown[t]
     labeled_data_samples[sp:ep] =  unlabeled_data_dict['data'][idx]
