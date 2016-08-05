@@ -21,7 +21,7 @@ from mlp import Mlp
 
 # argparse
 parser = argparse.ArgumentParser(description='Supervised Multi Layer Perceptron Example')
-parser.add_argument('--epoch', '-e', type=int, default=10, help='training epoch (default: 10)')
+parser.add_argument('--nitr', '-n', type=int, default=10000, help='number of times of weight update (default: 10000)')
 parser.add_argument('--lbatch', '-l', type=int, default=100, help='labeled training batchsize (default: 100)')
 parser.add_argument('--ubatch', '-u', type=int, default=250, help='unlabeled training batchsize (default: 250)')
 parser.add_argument('--valbatch', '-v', type=int, default=1000, help='validation batchsize (default: 1000)')
@@ -69,7 +69,14 @@ for t in six.moves.range(s_each):
     sp += sample_breakdown[t]
 labeled_data_dict = {'data':labeled_data_samples,
                      'target':labeled_data_labels}
-
+#couldn't fix yuma######
+from sklearn import cross_validation
+lplo = cross_validation.LeavePLabelOut(labels=six.moves.range(N_train), p=args.slabeled)
+labeled_data_samples = unlabeled_data_dict['data'][lpl[0][1]]
+labeled_data_labels = dataset['train']['target'][lpl[0][1]]
+labeled_data_dict = {'data':labeled_data_samples,
+                     'target':labeled_data_labels}
+########################
 
 labeled_data = DataFeeder(labeled_data_dict, batchsize=args.lbatch)
 unlabeled_data = DataFeeder(unlabeled_data_dict, batchsize=args.ubatch)
@@ -99,7 +106,7 @@ adam_alpha_scheduler = DecayOptimizerScheduler(optimizer, 'alpha', alpha_decay_i
 
 trainer = trainers.VirtualAdversarialTrainer(optimizer, logger, (labeled_data,unlabeled_data), test_data, args.gpu, eps=0.4, xi=0.001, lam=1.0)
 trainer.add_optimizer_scheduler(adam_alpha_scheduler)
-trainer.train(int(args.epoch*args.slabeled/args.lbatch), 
+trainer.train(args.nitr, 
               log_interval=1,
               test_interval=100, 
               test_nitr=10)
