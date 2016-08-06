@@ -12,7 +12,7 @@ from chainer import cuda, optimizers
 import cifar10
 
 # import model network
-from masalachai import Trainer, datafeeders, models
+from masalachai import trainers, datafeeders, models, Logger
 from allconvnet import AllConvNet
 
 # argparse
@@ -24,8 +24,17 @@ parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if 
 args = parser.parse_args()
 
 def cifar_preprocess(data):
-    data['data'] /= 255.
+    data['data0'] /= 255.
+    data['data1'] /= 255.
+
+    data['data0'] = np.expand_dims(data['data0'], 0)
+    data['data1'] = np.expand_dims(data['data1'], 0)
     return data
+
+# Logger setup
+logger = Logger('CIFAR SIAMESE',
+        train_log_mode='TRAIN_LOSS_ONLY',
+        test_log_mode='TEST_LOSS_ONLY')
 
 # Configure GPU Device
 if args.gpu >= 0:
@@ -34,16 +43,18 @@ xp = cuda.cupy if args.gpu >= 0 else np
 
 # loading dataset
 dataset = cifar10.load()
+dim = dataset['train']['data'][0].size
+N_train = len(dataset['train']['target'])
+N_test = len(dataset['test']['target'])
+train_data_dict = {'data':dataset['train']['data'].astype(np.float32),
+                   'target':dataset['train']['target'].astype(np.int32)}
+test_data_dict = {'data':dataset['test']['data'].astype(np.float32),
+                  'target':dataset['test']['target'].astype(np.int32)}
+train_data = datafeeders.SiameseFeeder(train_data_dict, batchsize=args.batch)
+test_data = datafeeders.SiameseFeeder(test_data_dict, batchsize=args.valbatch)
 
-train_data_dic = dataset['train']
-train_data_dic['data'] = train_data_dic['data'].astype(np.float32)
-train_data_dic['target'] = train_data_dic['target'].astype(np.int32)
-train_data = datafeeders.SiameseFeeder(data_dict=train_data_dic)
-
-test_data_dic = dataset['test']
-test_data_dic['data'] = test_data_dic['data'].astype(np.float32)
-test_data_dic['target'] = test_data_dic['target'].astype(np.int32)
-test_data = datafeeders.SiameseFeeder(data_dict=test_data_dic)
+train_data.hook_preprocess(cifar_preprocess)
+test_data.hook_preprocess(cifar_preprocess)
 
 
 # Model Setup
@@ -52,15 +63,15 @@ if args.gpu >= 0:
     cuda.get_device(args.gpu).use()
     model.to_gpu()
 
+
 # Opimizer Setup
 optimizer = optimizers.Adam()
 optimizer.setup(model)
 optimizer.add_hook(chainer.optimizer.WeightDecay(0.00002))
 
-trainer = Trainer(optimizer, train_data, test_data, args.gpu, logfile='cifar10_allconvnet.csv')
-trainer.hook(cifar_preprocess)
-trainer.train(args.epoch*train_data['size']/args.batch, 
-              args.batch, 
-              test_interval=train_data['size']/args.batch, 
-              test_nitr=test_data['size']/args.valbatch,
-              test_batchsize=args.valbatch)
+
+trainer = trainers.SupervisedTrainer(optimizer, logger, (train_data,), test_data, args.gpu)
+trainer.train(int(args.epoch*N_train/args.batch), 
+              log_interval=1,
+              test_interval=N_train/args.batch, 
+              test_nitr=N_test/args.valbatch)
