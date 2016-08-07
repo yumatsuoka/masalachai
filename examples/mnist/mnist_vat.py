@@ -7,6 +7,7 @@ import numpy as np
 import chainer
 import chainer.functions as F
 from chainer import cuda, optimizers
+from sklearn import cross_validation
 
 # import dataset script
 import mnist
@@ -54,29 +55,13 @@ N_test = len(dataset['test']['target'])
 test_data_dict = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.float32),
                   'target':dataset['test']['target'].astype(np.int32)}
 unlabeled_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).astype(np.float32)}
-
-# making labeled data
-s_each = int(args.slabeled / 10)
-sample_breakdown = np.array([s_each for i in six.moves.range(10)])
-labeled_data_samples = np.zeros((sample_breakdown.sum(), dim), dtype=np.float32)
-labeled_data_labels = np.zeros(sample_breakdown.sum(), dtype=np.int32)
-sp = 0
-for t in six.moves.range(s_each):
-    idx = np.where(dataset['train']['target']==t)[0][:sample_breakdown[t]]
-    ep = sp + sample_breakdown[t]
-    labeled_data_samples[sp:ep] =  unlabeled_data_dict['data'][idx]
-    labeled_data_labels[sp:ep] = dataset['train']['target'][idx]
-    sp += sample_breakdown[t]
-labeled_data_dict = {'data':labeled_data_samples,
-                     'target':labeled_data_labels}
-#couldn't fix yuma######
-from sklearn import cross_validation
+# making labeld data
 lplo = cross_validation.LeavePLabelOut(labels=six.moves.range(N_train), p=args.slabeled)
-labeled_data_samples = unlabeled_data_dict['data'][lpl[0][1]]
-labeled_data_labels = dataset['train']['target'][lpl[0][1]]
-labeled_data_dict = {'data':labeled_data_samples,
-                     'target':labeled_data_labels}
-########################
+fold = 1
+for i in six.moves.range(fold):
+    train_idx, test_idx = next(iter(lplo))
+labeled_data_dict = {'data':unlabeled_data_dict['data'][test_idx].astype(np.float32),
+                     'target':dataset['train']['target'][test_idx].astype(np.int32)}
 
 labeled_data = DataFeeder(labeled_data_dict, batchsize=args.lbatch)
 unlabeled_data = DataFeeder(unlabeled_data_dict, batchsize=args.ubatch)
