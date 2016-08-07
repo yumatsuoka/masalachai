@@ -4,7 +4,6 @@
 import argparse
 import numpy as np
 import chainer
-import chainer.functions as F
 from chainer import cuda, optimizers
 
 # import dataset script
@@ -41,12 +40,13 @@ xp = cuda.cupy if args.gpu >= 0 else np
 
 # loading dataset
 dataset = cifar10.load()
+
 dim = dataset['train']['data'][0].size
 N_train = len(dataset['train']['target'])
 N_test = len(dataset['test']['target'])
-train_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).astype(np.float32),
+train_data_dict = {'data':dataset['train']['data'].astype(np.float32),
                    'target':dataset['train']['target'].astype(np.int32)}
-test_data_dict = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.float32),
+test_data_dict = {'data':dataset['test']['data'].astype(np.float32),
                   'target':dataset['test']['target'].astype(np.int32)}
 train_data = DataFeeder(train_data_dict, batchsize=args.batch)
 test_data = DataFeeder(test_data_dict, batchsize=args.valbatch)
