@@ -3,10 +3,14 @@
 from masalachai.model import Model
 from chainer.functions import mean_squared_error
 
-## Autoencoder Wrapper
+# Autoencoder Wrapper
+
+
 class AutoencoderModel(Model):
+
     def __init__(self, encoder, decoder, lossfun=mean_squared_error):
-        super(AutoencoderModel, self).__init__(encoder, decoder=decoder, lossfun=lossfun)
+        super(AutoencoderModel, self).__init__(
+            encoder, decoder=decoder, lossfun=lossfun)
         self.decoder = decoder
         self.z = None
 
@@ -23,4 +27,3 @@ class AutoencoderModel(Model):
         y0, = y
         self.z = self.decoder(y0, train=train)
         return self.z
-
