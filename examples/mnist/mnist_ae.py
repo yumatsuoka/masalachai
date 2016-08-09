@@ -46,8 +46,8 @@ N_train = len(dataset['train']['target'])
 N_test = len(dataset['test']['target'])
 train_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).astype(np.float32)}
 test_data_dict = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.float32)}
-train_data = DataFeeder(train_data_dict)
-test_data = DataFeeder(test_data_dict)
+train_data = DataFeeder(train_data_dict, batchsize=args.batch)
+test_data = DataFeeder(test_data_dict, batchsize=args.valbatch)
 
 train_data.hook_preprocess(mnist_preprocess)
 test_data.hook_preprocess(mnist_preprocess)
@@ -70,7 +70,7 @@ optimizer.setup(model)
 
 trainer = trainers.AutoencoderTrainer(optimizer, logger, (train_data,), test_data, args.gpu)
 trainer.train(int(args.epoch*N_train/args.batch), 
-              (args.batch,),
-              test_batchsize=args.valbatch,
-              test_interval=N_train/args.batch)
+              log_interval=1,
+              test_interval=N_train/args.batch,
+              test_nitr=N_test/args.valbatch)
 
