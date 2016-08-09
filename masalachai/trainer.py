@@ -30,13 +30,16 @@ def res_dic_mul(dic, value):
 class Trainer(object):
     queue_size = 3
 
-    def __init__(self, optimizer, logger, train_data_feeders, test_data_feeder=None, gpu=-1):
+    def __init__(self, optimizer, logger,
+                 train_data_feeders, test_data_feeder=None, gpu=-1):
         self.optimizer = optimizer
         self.gpu = gpu
 
         # for train data feeder
         self.train_data_feeders = train_data_feeders
-        self.train_data_queues = [six.moves.queue.Queue(self.queue_size) for i in six.moves.range(len(self.train_data_feeders))]
+        self.train_data_queues = [six.moves.queue.Queue(
+            self.queue_size) for i in six.moves.range(
+                len(self.train_data_feeders))]
 
         # for test data feeder
         if test_data_feeder is not None:
@@ -50,17 +53,14 @@ class Trainer(object):
 
         self._optimizer_param_schedulers = []
 
-
     def add_optimizer_scheduler(self, s):
-        # register Optimizer scheduler 
+        # register Optimizer scheduler
         self._optimizer_param_schedulers.append(s)
-
 
     def optimizer_param_process(self, t):
         # drive Optimizer scheduler
         for s in self._optimizer_param_schedulers:
             self.optimizer.__dict__[s.param_name] = s.next(t)
-
 
     def wait_train_data_queues(self, t=0.05):
         while True:
@@ -76,19 +76,16 @@ class Trainer(object):
         while self.test_data_queue.empty():
             time.sleep(t)
 
-
     def predict(self, batchsize, train=False):
         # This method will be called when TEST phase
         raise NotImplementedError
-
 
     def update(self, batchsize):
         # This method will be called when TRAIN phase
         raise NotImplementedError
 
-
-    def train(self, nitr, 
-              log_interval=1, 
+    def train(self, nitr,
+              log_interval=1,
               test_interval=1, test_nitr=1):
 
         # setting stop event for data feeder and start threads
@@ -110,7 +107,7 @@ class Trainer(object):
 
             # logging
             if i % log_interval == 0:
-                train_res = res_dic_mul(train_res, 1./log_interval)
+                train_res = res_dic_mul(train_res, 1. / log_interval)
                 train_res['iteration'] = i
                 self.log_queue.put(self.logger.train_log_mode)
                 self.log_queue.put(train_res)
@@ -134,12 +131,12 @@ class Trainer(object):
             tdf.thread.join()
         self.logger.join()
 
-
     def test(self, nitr):
 
         # setting stop event for data feeder
         stop_feeding = threading.Event()
-        self.test_data_feeder.generateThread(self.test_data_queue, stop_feeding)
+        self.test_data_feeder.generateThread(
+            self.test_data_queue, stop_feeding)
 
         # start threads
         self.test_data_feeder.thread.start()
@@ -149,7 +146,7 @@ class Trainer(object):
         for i in six.moves.range(1, int(nitr)):
             self.wait_test_data_queue()
             test_res_ = res_dic_add(test_res, self.predict())
-        test_res = res_dic_mul(test_res, 1./nitr)
+        test_res = res_dic_mul(test_res, 1. / nitr)
 
         # end of testing
         stop_feeding.set()
@@ -160,4 +157,3 @@ class Trainer(object):
 
         self.test_data_feeder.thread.join()
         return test_res
-

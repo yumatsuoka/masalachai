@@ -3,8 +3,11 @@
 from masalachai.model import Model
 from chainer.functions import contrastive
 
-## Siamese Network Wrapper
+# Siamese Network Wrapper
+
+
 class SiameseModel(Model):
+
     def __init__(self, predictor, lossfun=contrastive):
         super(SiameseModel, self).__init__(predictor, lossfun)
 
@@ -22,4 +25,3 @@ class SiameseModel(Model):
         x0, = x
         self.y = self.predictor(x0, train=False)
         return self.y
-
