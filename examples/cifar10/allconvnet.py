@@ -22,15 +22,14 @@ class AllConvNet(chainer.Chain):
                 conv8 = L.Convolution2D(192, 192, 1),
                 conv9 = L.Convolution2D(192, 10, 1),
         )
-        self.train = True
 
-    def __call__(self, x):
-        h = F.relu(self.conv1(F.dropout(x, ratio=0.2, train=self.train)))
+    def __call__(self, x, t=None, train=True):
+        h = F.relu(self.conv1(F.dropout(x, ratio=0.2, train=train)))
         h = F.relu(self.conv2(h))
-        h = F.dropout(F.relu(self.conv3(h)), ratio=0.5, train=self.train)
+        h = F.dropout(F.relu(self.conv3(h)), ratio=0.5, train=train)
         h = F.relu(self.conv4(h))
         h = F.relu(self.conv5(h))
-        h = F.dropout(F.relu(self.conv6(h)), ratio=0.5, train=self.train)
+        h = F.dropout(F.relu(self.conv6(h)), ratio=0.5, train=train)
         h = F.relu(self.conv7(h))
         h = F.relu(self.conv8(h))
         h = F.relu(self.conv9(h))

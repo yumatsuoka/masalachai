@@ -7,7 +7,12 @@ import numpy
 import pandas
 import itertools
 
+<<<<<<< HEAD
 def from_csv(filename, batchsize=1, shuffle=True, loaderjob=8):
+=======
+
+def from_csv(filename):
+>>>>>>> master
     df = pandas.read_csv(fname)
     return DataFeeder(df.to_dict(), batchsize=batchsize, shuffle=shuffle, loaderjob=loaderjob)
 
@@ -64,7 +69,7 @@ class DataFeeder(object):
 
 
     def get_data_dict_from_list(self, dict_list):
-        return {k:numpy.asarray([d[k] for d in dict_list]) for k in dict_list[0].keys() if 'data' in k or 'target' in k}
+        return {k:numpy.stack([d[k] for d in dict_list]) for k in dict_list[0].keys() if 'data' in k or 'target' in k}
 
 
     def run(self):
@@ -82,8 +87,11 @@ class DataFeeder(object):
 
                 self.queue.put(self.get_data_dict_from_list([p.get() for p in batch_pool]))
                 cnt += self.batchsize
-        pool.close()
-        pool.join()
+        try:
+            pool.close()
+        except:
+            pool.terminate()
+            raise
 
 
     def batch(self, batchsize):

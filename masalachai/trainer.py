@@ -2,7 +2,6 @@ import time
 import numpy
 import six
 import chainer
-import queue
 import threading
 from chainer import cuda
 
@@ -37,28 +36,28 @@ class Trainer(object):
 
         # for train data feeder
         self.train_data_feeders = train_data_feeders
-        self.train_data_queues = [queue.Queue(self.queue_size) for i in six.moves.range(len(self.train_data_feeders))]
+        self.train_data_queues = [six.moves.queue.Queue(self.queue_size) for i in six.moves.range(len(self.train_data_feeders))]
 
         # for test data feeder
         if test_data_feeder is not None:
             self.test_data_feeder = test_data_feeder
-            self.test_data_queue = queue.Queue(self.queue_size)
+            self.test_data_queue = six.moves.queue.Queue(self.queue_size)
 
         # for logger
         self.logger = logger
-        self.log_queue = queue.Queue()
+        self.log_queue = six.moves.queue.Queue()
         self.logger.setQueue(self.log_queue)
 
         self._optimizer_param_schedulers = []
 
 
     def add_optimizer_scheduler(self, s):
-        # Optimizer のパラメータスケジューラの登録
+        # register Optimizer scheduler 
         self._optimizer_param_schedulers.append(s)
 
 
     def optimizer_param_process(self, t):
-        # Optimizer のパラメータスケジューラの駆動
+        # drive Optimizer scheduler
         for s in self._optimizer_param_schedulers:
             self.optimizer.__dict__[s.param_name] = s.next(t)
 
@@ -88,16 +87,10 @@ class Trainer(object):
         raise NotImplementedError
 
 
-    def train(self, nitr, batchsizes, 
+    def train(self, nitr, 
               log_interval=1, 
-              test_interval=1, test_nitr=1, test_batchsize=1):
+              test_interval=1, test_nitr=1):
 
-        # setting batchsize of datafeeders
-        for tdf, batchsize in zip(self.train_data_feeders, batchsizes):
-            tdf.batchsize = batchsize
-        if self.test_data_feeder is not None:
-            self.test_data_feeder.batchsize = test_batchsize
-        
         # setting stop event for data feeder and start threads
         stop_feeding = threading.Event()
         for tdf, q in zip(self.train_data_feeders, self.train_data_queues):
@@ -123,7 +116,7 @@ class Trainer(object):
                 self.log_queue.put(train_res)
                 train_res = {}
             # test
-            if self.test_data_feeder is not None and i % test_interval == 0:
+            if hasattr(self, 'test_data_feeder') and i % test_interval == 0:
                 test_res = self.test(test_nitr)
                 self.log_queue.put(self.logger.test_log_mode)
                 self.log_queue.put(test_res)

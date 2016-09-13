@@ -23,9 +23,8 @@ class AllConvNetBN(chainer.Chain):
                 conv8 = L.Convolution2D(192, 192, 1),
                 conv9 = L.Convolution2D(192, 10, 1),
         )
-        self.train = True
 
-    def __call__(self, x):
+    def __call__(self, x, t=None, train=True):
         h = F.relu(self.conv1(x))
         h = F.relu(self.bn1(self.conv2(h)))
         h = F.relu(self.conv3(h))

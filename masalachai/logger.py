@@ -45,11 +45,11 @@ class Logger(threading.Thread):
 
         # file handler setting
         if logfile is not None:
-            self._file_handler = logging.FileHandler(logfile)
+            self._file_handler = logging.FileHandler(logfile, mode='w')
             self._file_handler.setFormatter(self.formatter)
             self._logger.addHandler(self._file_handler)
         
-        self.mode = {'TRAIN': self.log_train, 'TRAIN_LOSS_ONLY': self.log_train_loss_only, 'TEST': self.log_test, 'TEST_LOSS_ONLY': self.log_test_loss_only, 'END': self.log_end}
+        self.mode = {'TRAIN': self.log_train, 'TRAIN_LOSS_ONLY': self.log_train_loss_only, 'TEST': self.log_test, 'TEST_LOSS_ONLY': self.log_test_loss_only, 'END': None}
         self.train_log_mode = train_log_mode
         self.test_log_mode = test_log_mode
         self.queue = None
@@ -80,6 +80,15 @@ class Logger(threading.Thread):
 
         self.queue = queue
 
+    def post_log(self):
+        """ Post-process for end of thread
+
+        ログスレッドが終了するときに必要な処理を行います．
+        Loggerクラス上では，特に何も行われません．
+
+        """
+        pass
+
 
     def run(self):
         """ Running logging thread
@@ -90,7 +99,7 @@ class Logger(threading.Thread):
             このクラスは`threading.Thread <http://docs.python.jp/3/library/threading.html#thread-objects>`_ のサブクラスです．
             ログスレッドを走らせるには，start() メソッドを呼び出してください．
 
-            ログスレッドを終了させるには，self.log_end()を呼び出すか，
+            ログスレッドを終了させるには，self.stop.set()を呼び出すか，
             親スレッドを終了させてください（ログスレッドはデーモンスレッドとして走ります）．
 
             また，一度ストップさせたスレッドは再開させることが出来ないことに注意してください．
@@ -104,8 +113,12 @@ class Logger(threading.Thread):
             res = self.queue.get()
             if getattr(res,'__hash__',False) and res in self.mode:
                 log_func = self.mode[res]
+                if res == 'END':
+                    self.stop.set()
                 continue
             self.__call__(log_func(res))
+
+        self.post_log()
 
 
     def log_train(self, res):
@@ -168,11 +181,4 @@ class Logger(threading.Thread):
         log_str = '[TEST], loss={0:.5f}'.format(res['loss'])
         return log_str
 
-    def log_end(self, *args):
-        """ Stopping log thread
-
-        ログスレッドを停止させます．
-        """
-
-        self.stop.set()
 
