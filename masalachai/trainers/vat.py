@@ -45,7 +45,7 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
             return chainer.functions.sum(p * (chainer.functions.log(p+eps) - chainer.functions.log(q+eps))) / p.data.shape[0]
 
         def euclidean_d(p, q):
-            return chainer.functions.sum(chainer.functions.math.sqrt((p-q) ** 2)))
+            return chainer.functions.sum(chainer.functions.sqrt((p-q) ** 2), axis=1)
         
         calc_d = (euclidean_d)if(self.norm == 'euclidean_d')else(kl_divergence)
 
