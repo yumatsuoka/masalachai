@@ -3,17 +3,19 @@
 from setuptools import setup
 
 pandas_version = 'pandas'
-six_version = 'six>=1.9.0'
-chainer_version = 'chainer>=1.8.2'
-install_requires = [ pandas_version, six_version, chainer_version ]
+six_version = 'six>=1.10.0'
+chainer_version = 'chainer>=1.12.0'
+pythonjsonlogger_version = 'python-json-logger'
+install_requires = [ pandas_version, six_version, chainer_version, pythonjsonlogger_version ]
 
 setup(
         name = 'masalachai',
-        version = '0.3.10',
+        version = '0.4.4',
         packages = ['masalachai',
                     'masalachai.datafeeders',
                     'masalachai.preprocesses',
                     'masalachai.trainers',
+                    'masalachai.loggers',
                     'masalachai.models',
                     'masalachai.optimizer_schedulers'],
         description = 'Masala Chai: easy chainer tool',

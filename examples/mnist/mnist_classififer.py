@@ -25,6 +25,7 @@ parser.add_argument('--valbatch', '-v', type=int, default=1000, help='validation
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if you want to use cpu, use -1 (default: -1)')
 args = parser.parse_args()
 
+
 def mnist_preprocess(data):
     data['data'] /= 255.
     return data
@@ -46,8 +47,8 @@ train_data_dict = {'data':dataset['train']['data'].reshape(N_train, dim).astype(
                    'target':dataset['train']['target'].astype(np.int32)}
 test_data_dict = {'data':dataset['test']['data'].reshape(N_test, dim).astype(np.float32),
                   'target':dataset['test']['target'].astype(np.int32)}
-train_data = DataFeeder(train_data_dict)
-test_data = DataFeeder(test_data_dict)
+train_data = DataFeeder(train_data_dict, batchsize=args.batch)
+test_data = DataFeeder(test_data_dict, batchsize=args.valbatch)
 
 train_data.hook_preprocess(mnist_preprocess)
 test_data.hook_preprocess(mnist_preprocess)
@@ -68,8 +69,7 @@ optimizer.setup(model)
 
 trainer = trainers.SupervisedTrainer(optimizer, logger, (train_data,), test_data, args.gpu)
 trainer.train(int(args.epoch*N_train/args.batch), 
-              (args.batch,),
+              log_interval=1,
               test_interval=N_train/args.batch, 
-              test_nitr=N_test/args.valbatch,
-              test_batchsize=args.valbatch)
+              test_nitr=N_test/args.valbatch)
 
