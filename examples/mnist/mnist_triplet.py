@@ -4,6 +4,7 @@
 import six
 import argparse
 import numpy as np
+import chainer
 from chainer import cuda, optimizers
 from sklearn import cross_validation
 
@@ -11,8 +12,10 @@ from sklearn import cross_validation
 import mnist
 
 # import model network
-from masalachai import models
-from masalachai import datafeeders
+#from masalachai import models
+#from masalachai import datafeeders
+import triplet_model
+import triplet_datafeeder
 from masalachai import Logger
 from masalachai import trainers
 from convnet import ConvNet
@@ -22,9 +25,8 @@ parser = argparse.ArgumentParser(description='Supervised Multi Layer Perceptron 
 parser.add_argument('--nitr', '-n', type=int, default=10000, help='number of times of weight update (default: 10000)')
 parser.add_argument('--batch', '-b', type=int, default=100, help='training batchsize (default: 100)')
 parser.add_argument('--valbatch', '-v', type=int, default=100, help='validation batchsize (default: 1000)')
-parser.add_argument('--slabeled', '-s', type=int, default=100, help='number of labeled data  (default: 1000)')
+parser.add_argument('--slabeled', '-s', type=int, default=1000, help='number of labeled data  (default: 1000)')
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if you want to use cpu, use -1 (default: -1)')
-parser.add_argument('--d_name', '-d', type=str, default="hoge", help='dump files name (default: "hoge")')
 args = parser.parse_args()
 
 def mnist_preprocess(data):
@@ -74,7 +76,7 @@ test_data.hook_preprocess(mnist_preprocess)
 
 
 # Model Setup
-outputs = 100
+outputs = 2
 model = triplet_model.TripletModel(ConvNet(output=outputs))
 
 if args.gpu >= 0:
@@ -83,12 +85,20 @@ if args.gpu >= 0:
 
 
 # Opimizer Setup
-optimizer = optimizers.Adam()
+optimizer = optimizers.Adam(alpha=0.0001)
 optimizer.setup(model)
+optimizer.add_hook(chainer.optimizer.WeightDecay(0.00001))
 
 
 trainer = trainers.SupervisedTrainer(optimizer, logger, (train_data,), None, args.gpu)
-trainer.train(args.nitr,
-              log_interval=1,
-              test_interval=100,
-              test_nitr=1)
+trainer.train(args.nitr, 1, 100, 1)
+
+print('dump feature vector')
+import dump_vec
+trained_model = model.predictor
+labeled_data_dict['data'] = labeled_data_dict['data'].reshape((N_l, 1, 28, 28))
+dump_vec.dump_feature_vector(trained_model, './dump/{}_label'.format(args.d_name), labeled_data_dict, outputs, args.valbatch, xp, args.gpu)
+ulabeled_data_dict['data'] = ulabeled_data_dict['data'].reshape((N_ul, 1, 28, 28))
+dump_vec.dump_feature_vector(trained_model, './dump/{}_unlabel'.format(args.d_name), ulabeled_data_dict, outputs, args.valbatch, xp, args.gpu, 100)
+
+print('all process done!')
