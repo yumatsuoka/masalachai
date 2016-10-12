@@ -155,5 +155,5 @@ class Trainer(object):
         while not self.test_data_queue.empty():
             self.test_data_queue.get()
 
-        self.test_data_feeder.thread.join()
+        #self.test_data_feeder.thread.join()
         return test_res
