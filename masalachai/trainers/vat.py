@@ -13,7 +13,7 @@ def _axis_tuple(ary):
 class VirtualAdversarialTrainer(SupervisedTrainer):
 
     def __init__(self, optimizer, logger, train_data_feeders,
-                 test_data_feeder, gpu=-1, eps=4.0, xi=0.1, lam=1., pitr=1):
+                 test_data_feeder, gpu=-1, eps=4.0, xi=0.1, lam=1., pitr=1, norm='kl_d'):
         super(VirtualAdversarialTrainer, self).__init__(
             optimizer, logger, train_data_feeders,
             test_data_feeder=test_data_feeder, gpu=gpu)
@@ -21,6 +21,7 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
         self.xi = xi
         self.lam = lam
         self.pitr = pitr
+        self.norm = norm
 
     def update(self):
         res_supervised = self.supervised_update()
@@ -49,6 +50,11 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
                 chainer.functions.log(p + eps) - chainer.functions.log(
                     q + eps))) / p.data.shape[0]
 
+        def euclidean_d(p, q):
+            return chainer.functions.sum(chainer.functions.sqrt((p-q) ** 2), axis=1)
+        
+        calc_d = euclidean_d if self.norm == 'euclidean_d' else kl_divergence
+
         xp = cuda.cupy if self.gpu >= 0 else numpy
 
         x0, = x
@@ -68,12 +74,12 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
             vd = chainer.Variable(d)
             q = chainer.functions.softmax(
                 self.optimizer.target.predictor(x0 + vr + self.xi * d))
-            k = kl_divergence(p, q)
+            k = calc_d(p, q)
             k.backward()
             d = vr.grad / xp.sqrt(xp.sum(
                 vr.grad * vr.grad, axis=_axis_tuple(d)[1:], keepdims=True))
         self.r_vadv = chainer.Variable(self.eps * d)
         q_vadv = chainer.functions.softmax(
             self.optimizer.target.predictor(x0 + self.r_vadv))
-        self.lds_loss = self.lam * kl_divergence(p, q_vadv)
+        self.lds_loss = self.lam * calc_d(p, q_vadv)
         return self.lds_loss
