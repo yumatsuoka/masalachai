@@ -12,10 +12,8 @@ from sklearn import cross_validation
 import mnist
 
 # import model network
-#from masalachai import models
-#from masalachai import datafeeders
-import triplet_model
-import triplet_datafeeder
+from masalachai import models
+from masalachai import datafeeders
 from masalachai import Logger
 from masalachai import trainers
 from convnet import ConvNet
@@ -63,13 +61,13 @@ lplo = cross_validation.LeavePLabelOut(labels=six.moves.range(N_train), p=args.s
 fold = 1
 for i in six.moves.range(fold):
     ul_idxes, l_idxes = next(iter(lplo))
-labeled_data_dict = {'data':train_data_dict['data'][l_idxes],\
+labeled_data_dict = {'data':train_data_dict['data'][l_idxes],
                     'target':train_data_dict['target'][l_idxes]}
 ulabeled_data_dict ={'data':train_data_dict['data'][ul_idxes],
                    'target':train_data_dict['target'][ul_idxes]}
 
-train_data = triplet_datafeeder.TripletFeeder(labeled_data_dict, batchsize=args.batch)
-test_data =  triplet_datafeeder.TripletFeeder(ulabeled_data_dict, batchsize=args.valbatch)
+train_data = datafeeders.TripletFeeder(labeled_data_dict, batchsize=args.batch)
+test_data =  datafeeders.TripletFeeder(ulabeled_data_dict, batchsize=args.valbatch)
 
 train_data.hook_preprocess(mnist_preprocess)
 test_data.hook_preprocess(mnist_preprocess)
@@ -77,7 +75,7 @@ test_data.hook_preprocess(mnist_preprocess)
 
 # Model Setup
 outputs = 2
-model = triplet_model.TripletModel(ConvNet(output=outputs))
+model = models.TripletModel(ConvNet(output=outputs))
 
 if args.gpu >= 0:
     cuda.get_device(args.gpu).use()
@@ -92,13 +90,3 @@ optimizer.add_hook(chainer.optimizer.WeightDecay(0.00001))
 
 trainer = trainers.SupervisedTrainer(optimizer, logger, (train_data,), None, args.gpu)
 trainer.train(args.nitr, 1, 100, 1)
-
-print('dump feature vector')
-import dump_vec
-trained_model = model.predictor
-labeled_data_dict['data'] = labeled_data_dict['data'].reshape((N_l, 1, 28, 28))
-dump_vec.dump_feature_vector(trained_model, './dump/{}_label'.format(args.d_name), labeled_data_dict, outputs, args.valbatch, xp, args.gpu)
-ulabeled_data_dict['data'] = ulabeled_data_dict['data'].reshape((N_ul, 1, 28, 28))
-dump_vec.dump_feature_vector(trained_model, './dump/{}_unlabel'.format(args.d_name), ulabeled_data_dict, outputs, args.valbatch, xp, args.gpu, 100)
-
-print('all process done!')
