@@ -12,10 +12,10 @@ def _axis_tuple(ary):
 
 class VirtualAdversarialTrainer(SupervisedTrainer):
 
-    def __init__(self, optimizer, logger, train_data_feeders,
+    def __init__(self, optimizer, loggers, train_data_feeders,
                  test_data_feeder, gpu=-1, eps=4.0, xi=0.1, lam=1., pitr=1):
         super(VirtualAdversarialTrainer, self).__init__(
-            optimizer, logger, train_data_feeders,
+            optimizer, loggers, train_data_feeders,
             test_data_feeder=test_data_feeder, gpu=gpu)
         self.eps = eps
         self.xi = xi

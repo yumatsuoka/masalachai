@@ -7,10 +7,10 @@ from masalachai.trainer import Trainer
 
 class SupervisedTrainer(Trainer):
 
-    def __init__(self, optimizer, logger,
+    def __init__(self, optimizer, loggers,
                  train_data_feeders, test_data_feeder, gpu=-1):
         super(SupervisedTrainer, self).__init__(
-            optimizer, logger, train_data_feeders,
+            optimizer, loggers, train_data_feeders,
             test_data_feeder=test_data_feeder, gpu=gpu)
 
     def supervised_update(self):
