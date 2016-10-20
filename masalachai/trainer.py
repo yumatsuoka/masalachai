@@ -9,6 +9,12 @@ from masalachai.logger import Logger
 from masalachai.datafeeder import DataFeeder
 
 
+def _tuple(inp):
+    if hasattr(inp, '__iter__'):
+        return tuple(inp)
+    return inp,
+
+
 def res_dic_add(dic0, dic1):
     dic1_items = dic1.items()
     for k, v in dic1_items:
@@ -30,13 +36,13 @@ def res_dic_mul(dic, value):
 class Trainer(object):
     queue_size = 3
 
-    def __init__(self, optimizer, logger,
+    def __init__(self, optimizer, loggers,
                  train_data_feeders, test_data_feeder=None, gpu=-1):
         self.optimizer = optimizer
         self.gpu = gpu
 
         # for train data feeder
-        self.train_data_feeders = train_data_feeders
+        self.train_data_feeders = _tuple(train_data_feeders)
         self.train_data_queues = [six.moves.queue.Queue(
             self.queue_size) for i in six.moves.range(
                 len(self.train_data_feeders))]
@@ -47,9 +53,11 @@ class Trainer(object):
             self.test_data_queue = six.moves.queue.Queue(self.queue_size)
 
         # for logger
-        self.logger = logger
-        self.log_queue = six.moves.queue.Queue()
-        self.logger.setQueue(self.log_queue)
+        self.loggers = _tuple(loggers)
+        self.log_queues = [six.moves.queue.Queue() for i in six.moves.range(
+            len(self.loggers))]
+        for logger, log_queue in zip(self.loggers, self.log_queues):
+            logger.setQueue(log_queue)
 
         self._optimizer_param_schedulers = []
 
@@ -95,7 +103,8 @@ class Trainer(object):
             tdf.thread.start()
 
         # start logger threads
-        self.logger.start()
+        for logger in self.loggers:
+            logger.start()
 
         self.wait_train_data_queues()
         train_res = self.update()
@@ -109,14 +118,16 @@ class Trainer(object):
             if i % log_interval == 0:
                 train_res = res_dic_mul(train_res, 1. / log_interval)
                 train_res['iteration'] = i
-                self.log_queue.put(self.logger.train_log_mode)
-                self.log_queue.put(train_res)
+                for logger, log_queue in zip(self.loggers, self.log_queues):
+                    log_queue.put(logger.train_log_mode)
+                    log_queue.put(train_res)
                 train_res = {}
             # test
             if hasattr(self, 'test_data_feeder') and i % test_interval == 0:
                 test_res = self.test(test_nitr)
-                self.log_queue.put(self.logger.test_log_mode)
-                self.log_queue.put(test_res)
+                for logger, log_queue in zip(self.loggers, self.log_queues):
+                    log_queue.put(logger.test_log_mode)
+                    log_queue.put(test_res)
 
         # end of training
         stop_feeding.set()
@@ -126,10 +137,14 @@ class Trainer(object):
             while not q.empty():
                 q.get()
 
-        self.log_queue.put('END')
+        for log_queue in self.log_queues:
+            log_queue.put('END')
+
         for tdf in self.train_data_feeders:
             tdf.thread.join()
-        self.logger.join()
+        
+        for logger in self.loggers:
+            logger.join()
 
     def test(self, nitr):
 

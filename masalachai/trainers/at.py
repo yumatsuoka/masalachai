@@ -32,11 +32,11 @@ def sign(x):
 
 class AdversarialTrainer(SupervisedTrainer):
 
-    def __init__(self, optimizer, logger,
+    def __init__(self, optimizer, loggers,
                  train_data_feeders, test_data_feeder, gpu=-1,
                  eps=4.0, alpha=0.5):
         super(AdversarialTrainer, self).__init__(
-            optimizer, logger, train_data_feeders,
+            optimizer, loggers, train_data_feeders,
             test_data_feeder=test_data_feeder, gpu=gpu)
         self.eps = eps
         self.alpha = alpha
