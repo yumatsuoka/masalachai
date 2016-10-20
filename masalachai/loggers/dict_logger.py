@@ -7,9 +7,9 @@ from masalachai.logger import Logger
 
 class DictLogger(Logger):
 
-    def __init__(self, name, logfile, level=logging.INFO):
+    def __init__(self, name, logfile, level=logging.INFO, display=True):
         super(DictLogger, self).__init__(
-            name, level=level, logfile=None,
+            name, level=level, logfile=None, display=display,
             train_log_mode='TRAIN_DICT', test_log_mode='TEST_DICT')
         self.output_file = logfile
         self.log_data = []
