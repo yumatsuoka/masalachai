@@ -40,10 +40,14 @@ class TripletFeeder(DataFeeder):
                 classwise_batch = [list(numpy.random.permutation(numpy.where(self.data_dict['target']==c)[0])[:self.batchsize])
                         for c in six.moves.range(n_class)]
 
+                print([len(classwise_batch[c]) for c in range(n_class)])
+                print(sum([len(classwise_batch[c]) for c in range(n_class)]))
+
                 xa = self.get_data_dict_list(indexes)
                 xa_targets = [self.data_dict['target'][idx] for idx in indexes]
 
                 xp = self.get_data_dict_list(numpy.array([classwise_batch[t].pop() for t in xa_targets]))
+                print([len(classwise_batch[c]) for c in range(n_class)])
                 xn = self.get_data_dict_list(
                         numpy.asarray([classwise_batch[numpy.random.choice(
                             n_class,1,p=[1./(n_class-1) if c!=t else 0.0 for c in six.moves.range(n_class)])[0]].pop()
