@@ -39,20 +39,21 @@ class Logger(threading.Thread):
         fmt='%(asctime)s %(name)8s %(levelname)8s: %(message)s',
         datefmt='%Y/%m/%d %p %I:%M:%S,',)
 
-    def __init__(self, name, level=logging.INFO, logfile=None,
+    def __init__(self, name, level=logging.INFO, display=True, logfile=None,
                  train_log_mode='TRAIN', test_log_mode='TEST'):
         super(Logger, self).__init__()
         self.setDaemon(True)
 
-        # stream handler setting
-        self._handler = logging.StreamHandler()
-        self._handler.setLevel(level)
-        self._handler.setFormatter(self.formatter)
-
         # logger setting
         self._logger = logging.getLogger(name)
         self._logger.setLevel(level)
-        self._logger.addHandler(self._handler)
+
+        # stream handler setting
+        if display:
+            self._handler = logging.StreamHandler()
+            self._handler.setLevel(level)
+            self._handler.setFormatter(self.formatter)
+            self._logger.addHandler(self._handler)
 
         # file handler setting
         if logfile is not None:

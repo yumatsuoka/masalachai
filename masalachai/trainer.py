@@ -10,8 +10,8 @@ from masalachai.datafeeder import DataFeeder
 
 
 def _tuple(inp):
-    if hasattr(inp, '__iter'):
-        return tuple(nip)
+    if hasattr(inp, '__iter__'):
+        return tuple(inp)
     return inp,
 
 
@@ -46,6 +46,7 @@ class Trainer(object):
         self.train_data_queues = [six.moves.queue.Queue(
             self.queue_size) for i in six.moves.range(
                 len(self.train_data_feeders))]
+        print(self.train_data_feeders)
 
         # for test data feeder
         if test_data_feeder is not None:
