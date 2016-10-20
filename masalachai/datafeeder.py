@@ -7,12 +7,7 @@ import numpy
 import pandas
 import itertools
 
-<<<<<<< HEAD
 def from_csv(filename, batchsize=1, shuffle=True, loaderjob=8):
-=======
-
-def from_csv(filename):
->>>>>>> master
     df = pandas.read_csv(fname)
     return DataFeeder(df.to_dict(), batchsize=batchsize, shuffle=shuffle, loaderjob=loaderjob)
 
