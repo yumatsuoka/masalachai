@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from masalachai.logger import Logger
-from masalachai_progressbar import MasalachaiProgressBar
+from masalachai.loggers.masalachai_progressbar import MasalachaiProgressBar
+import logging
+import threading
 import progressbar
 
 def diff_from_history(now_dict, history_dict, history_len):
@@ -10,10 +12,15 @@ def diff_from_history(now_dict, history_dict, history_len):
     diff_dict = {}
 
     for k in now_dict.keys():
-        diff_dict['diff_'+k] = now_dict[k] - ave_dict[k]
-        if len(history_dict[k]) > history_len:
-            history_dict.pop()
-        history_dict[k].append(now_dict[k])
+        #key = now_dict['type']+'_'+k
+        key = k
+        diff_dict['diff_'+key] = now_dict[key] - ave_dict[key] if key in ave_dict else 0.0
+        if len(history_dict) > 0 and len(history_dict[k]) > history_len:
+            history_dict[k].pop()
+        if k in history_dict:
+            history_dict[k].append(now_dict[k])
+        else:
+            history_dict[k] = [now_dict[k]]
 
     return diff_dict
 
@@ -29,6 +36,7 @@ class ProgressbarLogger(Logger):
 
         self.train_log_data = {}
         self.test_log_data = {}
+        self.max_value = max_value
         self.history_len = history_len
         self.display_data = display_data
         self.mode['TRAIN_PROGRESS'] = self.log_train_progress
@@ -38,21 +46,16 @@ class ProgressbarLogger(Logger):
         self.widgets = [progressbar.FormatLabel('(%(value)d of %(max)s)'),
                 ' ', progressbar.Percentage(),
                 ' ', progressbar.Bar()]
-        dynamic_data = {k+'_'+kk: 0.0 for k in display_data.keys() for kk in display_data[k]}
+        self.dynamic_data = {k+'_'+kk: 0.0 for k in display_data.keys() for kk in display_data[k]}
         diff_data = {'diff_'+k+'_'+kk: 0.0 for k in display_data.keys() for kk in display_data[k]}
-        dynamic_data.update(diff_data)
+        self.dynamic_data.update(diff_data)
         for t in display_data.keys():
-            ddstr = '[' + t + ']'
-            for s in t:
+            ddstr = ' [' + t + ']'
+            for s in display_data[t]:
                 value_name = t + '_' + s
                 ddstr = ddstr + ' ' + s + ':' + '%(' + value_name + ').3f (%(diff_' + value_name + ').3f)'
-            self.widgets.append('|')
             self.widgets.append(progressbar.FormatLabel(ddstr))
-        self.widgets.extend(['|', progressbar.Timer(), '|', progressbar.AdaptiveETA()])
-        self.bar = MasalachaiProgressBar(
-                max_value=max_value, 
-                widgets=self.widgets,
-                dynamic_data=dynamic_data)
+        self.widgets.extend(['|', progressbar.FormatLabel('Time: %(elapsed)s'), '|', progressbar.AdaptiveETA()])
 
 
     def __call__(self, msg):
@@ -61,18 +64,18 @@ class ProgressbarLogger(Logger):
             # train phase
             if msg['type'] == 'train':
                 # create message
-                vs = {k: v for k, v in msg.items() if k in self.display_data['train']}
+                vs = {'train_'+k: v for k, v in msg.items() if k in self.display_data['train']}
                 dd = diff_from_history(vs, self.train_log_data, self.history_len)
                 vs.update(dd)
-                self.bar.update(d['iteration'], **vs)
+                self.bar.update(msg['iteration'], **vs)
 
             # test phase
-            elif d['type'] == 'test':
+            elif msg['type'] == 'test':
                 # create message
-                vs = {k: v for k, v in msg.items() if k in self.display_data['test']}
+                vs = {'test_'+k: v for k, v in msg.items() if k in self.display_data['test']}
                 dd = diff_from_history(vs, self.test_log_data, self.history_len)
                 vs.update(dd)
-                self.bar.update(d['iteration'], **vs)
+                self.bar.update(**vs)
 
 
     def post_log(self):
@@ -85,7 +88,12 @@ class ProgressbarLogger(Logger):
             "Log Queue is None, use Logger.setQueue(queue) before calling me."
 
         self.stop = threading.Event()
-        self.bar = progressbar.ProgressbarLogger(max_value=self.max_value, widgets=self.widgets)
+        self.bar = MasalachaiProgressBar(
+                max_value=self.max_value, 
+                widgets=self.widgets,
+                dynamic_data=self.dynamic_data)
+
+        self.bar.start()
 
         while not self.stop.is_set():
             res = self.queue.get()

@@ -46,7 +46,6 @@ class Trainer(object):
         self.train_data_queues = [six.moves.queue.Queue(
             self.queue_size) for i in six.moves.range(
                 len(self.train_data_feeders))]
-        print(self.train_data_feeders)
 
         # for test data feeder
         if test_data_feeder is not None:
