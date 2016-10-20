@@ -10,7 +10,7 @@ class JsonLogger(Logger):
 
     formatter = jsonlogger.JsonFormatter()
 
-    def __init__(self, name, logfile, display=display, level=logging.INFO):
+    def __init__(self, name, logfile, display=True, level=logging.INFO):
         super(JsonLogger, self).__init__(
                 name, level=level, logfile=logfile, display=display,
                 train_log_mode='TRAIN_JSON', test_log_mode='TEST_JSON')
