@@ -12,13 +12,11 @@ from sklearn import cross_validation
 import mnist
 
 # import model network
-# from masalachai import datafeeders
 from masalachai import DataFeeder
-import triplet_model
-import triplet_datafeeder
+from masalachai import datafeeders
 from masalachai import Logger
 from masalachai import trainers
-#from masalachai import models
+from masalachai import models
 from masalachai.optimizer_schedulers import DecayOptimizerScheduler
 from mlp import Mlp
 
@@ -75,9 +73,9 @@ for i in six.moves.range(fold):
 labeled_data_dict = {'data':unlabeled_data_dict['data'][test_idx].astype(np.float32),
                      'target':dataset['train']['target'][test_idx].astype(np.int32)}
 
-labeled_data = triplet_datafeeder.TripletFeeder(labeled_data_dict, batchsize=args.lbatch)
+labeled_data = datafeeders.TripletFeeder(labeled_data_dict, batchsize=args.lbatch)
 unlabeled_data = DataFeeder(unlabeled_data_dict, batchsize=args.ubatch)
-test_data = triplet_datafeeder.TripletFeeder(test_data_dict, batchsize=args.valbatch)
+test_data = datafeeders.TripletFeeder(test_data_dict, batchsize=args.valbatch)
 
 labeled_data.hook_preprocess(mnist_preprocess)
 unlabeled_data.hook_preprocess(mnist_preprocess_u)
@@ -86,7 +84,7 @@ test_data.hook_preprocess(mnist_preprocess)
 
 # Model Setup
 h_units = 1200
-model = triplet_model.TripletModel(Mlp(labeled_data['data'][0].size, h_units, h_units, np.max(labeled_data['target'])+1))
+model = models.TripletModel(Mlp(labeled_data['data'][0].size, h_units, h_units, np.max(labeled_data['target'])+1))
 
 
 if args.gpu >= 0:
@@ -103,7 +101,13 @@ alpha_decay_interval = 500
 alpha_decay_rate = 0.9
 adam_alpha_scheduler = DecayOptimizerScheduler(optimizer, 'alpha', alpha_decay_interval, alpha_decay_rate)
 
-trainer = trainers.VirtualAdversarialTrainer(optimizer, logger, (labeled_data, unlabeled_data), test_data, args.gpu, eps=1.4, xi=10, lam=1.0)
+trainer = trainers.VirtualAdversarialTrainer(optimizer, 
+                                             logger, 
+                                             (labeled_data, unlabeled_data), 
+                                             test_data, 
+                                             args.gpu, 
+                                             norm='euclidean_d',
+                                             eps=1.4, xi=10, lam=1.0)
 trainer.train(args.nitr, 
               log_interval=1,
               test_interval=100, 

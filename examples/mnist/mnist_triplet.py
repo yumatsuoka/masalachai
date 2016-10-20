@@ -20,10 +20,9 @@ from convnet import ConvNet
 
 # argparse
 parser = argparse.ArgumentParser(description='Supervised Multi Layer Perceptron Example')
-parser.add_argument('--nitr', '-n', type=int, default=10000, help='number of times of weight update (default: 10000)')
-parser.add_argument('--batch', '-b', type=int, default=100, help='training batchsize (default: 100)')
-parser.add_argument('--valbatch', '-v', type=int, default=100, help='validation batchsize (default: 1000)')
-parser.add_argument('--slabeled', '-s', type=int, default=1000, help='number of labeled data  (default: 1000)')
+parser.add_argument('--nitr', '-n', type=int, default=1000, help='number of times of weight update (default: 1000)')
+parser.add_argument('--batch', '-b', type=int, default=10, help='training batchsize (default: 100)')
+parser.add_argument('--valbatch', '-v', type=int, default=10, help='validation batchsize (default: 1000)')
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if you want to use cpu, use -1 (default: -1)')
 args = parser.parse_args()
 
@@ -51,23 +50,15 @@ xp = cuda.cupy if args.gpu >= 0 else np
 dataset = mnist.load()
 dim = dataset['train']['data'][0].size
 N_train = len(dataset['train']['target'])
-N_l = args.slabeled
-N_ul = N_train - args.slabeled
+N_test = len(dataset['test']['target'])
 train_data_dict = {'data':dataset['train']['data'].astype(np.float32),
                  'target':dataset['train']['target'].astype(np.int32)}
+test_data_dict = {'data':dataset['test']['data'].astype(np.float32),
+                  'target':dataset['test']['target'].astype(np.int32)}
+logger('load data')
 
-# make labeled and unlabeled data in training data
-lplo = cross_validation.LeavePLabelOut(labels=six.moves.range(N_train), p=args.slabeled)
-fold = 1
-for i in six.moves.range(fold):
-    ul_idxes, l_idxes = next(iter(lplo))
-labeled_data_dict = {'data':train_data_dict['data'][l_idxes],
-                    'target':train_data_dict['target'][l_idxes]}
-ulabeled_data_dict ={'data':train_data_dict['data'][ul_idxes],
-                   'target':train_data_dict['target'][ul_idxes]}
-
-train_data = datafeeders.TripletFeeder(labeled_data_dict, batchsize=args.batch)
-test_data =  datafeeders.TripletFeeder(ulabeled_data_dict, batchsize=args.valbatch)
+train_data = datafeeders.TripletFeeder(train_data_dict, batchsize=args.batch)
+test_data =  datafeeders.TripletFeeder(test_data_dict, batchsize=args.valbatch)
 
 train_data.hook_preprocess(mnist_preprocess)
 test_data.hook_preprocess(mnist_preprocess)
@@ -83,9 +74,8 @@ if args.gpu >= 0:
 
 
 # Opimizer Setup
-optimizer = optimizers.Adam(alpha=0.0001)
+optimizer = optimizers.SGD(0.01)
 optimizer.setup(model)
-optimizer.add_hook(chainer.optimizer.WeightDecay(0.00001))
 
 
 trainer = trainers.SupervisedTrainer(optimizer, logger, (train_data,), None, args.gpu)
