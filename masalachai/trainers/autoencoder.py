@@ -7,10 +7,10 @@ from masalachai.trainer import Trainer
 
 class AutoencoderTrainer(Trainer):
 
-    def __init__(self, optimizer, logger,
+    def __init__(self, optimizer, loggers,
                  train_data_feeders, test_data_feeder=None, gpu=-1):
         super(AutoencoderTrainer, self).__init__(
-            optimizer, logger, train_data_feeders,
+            optimizer, loggers, train_data_feeders,
             test_data_feeder=test_data_feeder, gpu=gpu)
 
     def update(self):
