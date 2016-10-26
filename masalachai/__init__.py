@@ -20,4 +20,4 @@ DataFeeder = datafeeder.DataFeeder
 OptimizerScheduler = optimizer_scheduler.OptimizerScheduler
 Trainer = trainer.Trainer
 Model = model.Model
-PostTestProcess = posttest_processes.PostTestProcess
+PostTestProcess = posttest_process.PostTestProcess

@@ -67,7 +67,15 @@ optimizer = optimizers.Adam()
 optimizer.setup(model)
 
 
-trainer = trainers.SupervisedTrainer(optimizer, logger, (train_data,), test_data, args.gpu)
+# Trainer Setup
+updates = int(N_train / args.batch)
+trainer = trainers.SupervisedTrainer(optimizer, logger, train_data, test_data, args.gpu)
+# using EarlyStopping
+patience = int(updates * args.epoch * 0.3)
+model_filename = 'MNIST_CLASSIFER_{iteration:d}_{loss:.3f}.npz'
+trainer.hook_posttest_process(
+        EarlyStopping(model, model_filename, patience=patience, interval=args.batch*2))
+
 trainer.train(int(args.epoch*N_train/args.batch), 
               log_interval=1,
               test_interval=N_train/args.batch, 

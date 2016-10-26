@@ -18,7 +18,7 @@ class SnapshotBest(PostTestProcess):
         # Adding contents of test_res to instance variables, 
         # we can use them in filename format.
         self.__dict__.update({k:v for k,v in test_res.items() if k not in self.__dict__})
-        filename = self.filename.format(self.__dict__)
+        filename = self.filename.format(**self.__dict__)
         serializers.save_npz(filename, self.model)
 
     def __call__(self, test_res):

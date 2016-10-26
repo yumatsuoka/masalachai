@@ -71,7 +71,7 @@ class Trainer(object):
         for s in self._optimizer_param_schedulers:
             self.optimizer.__dict__[s.param_name] = s.next(t)
 
-    def posttest_process(self, f):
+    def hook_posttest_process(self, f):
         self.posttest_hooks.append(f)
 
     def posttest_process(self, res):
@@ -140,7 +140,7 @@ class Trainer(object):
                     log_queue.put(logger.test_log_mode)
                     log_queue.put(test_res)
                 # post-test process
-                isStop = self.posttest_hooks(test_res)
+                isStop = self.posttest_process(test_res)
                 if isStop:
                     break
 
