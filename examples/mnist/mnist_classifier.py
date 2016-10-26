@@ -13,8 +13,7 @@ import mnist
 # import model network
 from masalachai import DataFeeder
 from masalachai import Logger
-from masalachai import trainers
-from masalachai import models
+from masalachai import trainers, models, posttest_processes
 from mlp import Mlp
 
 # argparse
@@ -74,10 +73,10 @@ trainer = trainers.SupervisedTrainer(optimizer, logger, train_data, test_data, a
 patience = int(updates * args.epoch * 0.3)
 model_filename = 'MNIST_CLASSIFER_{iteration:d}_{loss:.3f}.npz'
 trainer.hook_posttest_process(
-        EarlyStopping(model, model_filename, patience=patience, interval=args.batch*2))
+        posttest_processes.EarlyStopping(model, model_filename, patience=patience, interval=args.batch, best_only=True))
 
 trainer.train(int(args.epoch*N_train/args.batch), 
-              log_interval=1,
+              log_interval=N_train/args.batch,
               test_interval=N_train/args.batch, 
               test_nitr=N_test/args.valbatch)
 
