@@ -11,6 +11,7 @@ from masalachai import trainers
 from masalachai import model
 from masalachai import models
 from masalachai import preprocesses
+from masalachai import posttest_processes
 
 __version__ = pkg_resources.get_distribution('masalachai').version
 
@@ -19,3 +20,4 @@ DataFeeder = datafeeder.DataFeeder
 OptimizerScheduler = optimizer_scheduler.OptimizerScheduler
 Trainer = trainer.Trainer
 Model = model.Model
+PostTestProcess = posttest_process.PostTestProcess
