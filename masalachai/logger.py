@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import sys
 import logging
 import threading
 
@@ -49,11 +50,11 @@ class Logger(threading.Thread):
         self._logger.setLevel(level)
 
         # stream handler setting
-        if display:
-            self._handler = logging.StreamHandler()
-            self._handler.setLevel(level)
-            self._handler.setFormatter(self.formatter)
-            self._logger.addHandler(self._handler)
+        stream = sys.stderr if display else open('/dev/null', 'w')
+        self._handler = logging.StreamHandler(stream)
+        self._handler.setLevel(level)
+        self._handler.setFormatter(self.formatter)
+        self._logger.addHandler(self._handler)
 
         # file handler setting
         if logfile is not None:
