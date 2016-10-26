@@ -40,6 +40,7 @@ class Trainer(object):
                  train_data_feeders, test_data_feeder=None, gpu=-1):
         self.optimizer = optimizer
         self.gpu = gpu
+        self.posttest_hooks = []
 
         # for train data feeder
         self.train_data_feeders = _tuple(train_data_feeders)
@@ -69,6 +70,15 @@ class Trainer(object):
         # drive Optimizer scheduler
         for s in self._optimizer_param_schedulers:
             self.optimizer.__dict__[s.param_name] = s.next(t)
+
+    def posttest_process(self, f):
+        self.posttest_hooks.append(f)
+
+    def posttest_process(self, res):
+        ret = False
+        for f in self.posttest_hooks:
+            ret = ret or f(res)
+        return ret
 
     def wait_train_data_queues(self, t=0.05):
         while True:
@@ -107,7 +117,6 @@ class Trainer(object):
             logger.start()
 
         self.wait_train_data_queues()
-        #train_res = self.update()
         train_res = {}
         for i in six.moves.range(1, int(nitr+1)):
             # update
@@ -126,9 +135,15 @@ class Trainer(object):
             # test
             if hasattr(self, 'test_data_feeder') and i % test_interval == 0:
                 test_res = self.test(test_nitr)
+                test_res['iteration'] = i
                 for logger, log_queue in zip(self.loggers, self.log_queues):
                     log_queue.put(logger.test_log_mode)
                     log_queue.put(test_res)
+                # post-test process
+                isStop = self.posttest_hooks(test_res)
+                if isStop:
+                    break
+
 
         # end of training
         stop_feeding.set()
