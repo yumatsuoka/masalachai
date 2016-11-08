@@ -40,6 +40,7 @@ class VirtualAdversarialTrainer(SupervisedTrainer):
         self.lam = lam
         self.pitr = pitr
         self.norm = norm
+        print('from ./vat.py')
 
     def update(self):
         res_supervised = self.supervised_update()

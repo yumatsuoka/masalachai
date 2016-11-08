@@ -20,8 +20,8 @@ from allconvnet_bn import AllConvNetBN
 # argparse
 parser = argparse.ArgumentParser(description='All Convolutional Network Example on CIFAR-10')
 parser.add_argument('--epoch', '-e', type=int, default=300, help='training epoch (default: 100)')
-parser.add_argument('--batch', '-b', type=int, default=500, help='training batchsize (default: 100)')
-parser.add_argument('--valbatch', '-v', type=int, default=1000, help='validation batchsize (default: 100)')
+parser.add_argument('--batch', '-b', type=int, default=100, help='training batchsize (default: 100)')
+parser.add_argument('--valbatch', '-v', type=int, default=100, help='validation batchsize (default: 100)')
 parser.add_argument('--gpu', '-g', type=int, default=-1, help='GPU device #, if you want to use cpu, use -1 (default: -1)')
 args = parser.parse_args()
 

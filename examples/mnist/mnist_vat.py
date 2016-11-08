@@ -15,10 +15,16 @@ import mnist
 # import model network
 from masalachai import DataFeeder
 from masalachai import Logger
-from masalachai import trainers
 from masalachai import models
 from masalachai.optimizer_schedulers import DecayOptimizerScheduler
 from mlp import Mlp
+
+# for test
+from masalachai.trainers import VirtualAdversarialTrainer
+#from vat import VirtualAdversarialTrainer
+
+test_norm = 'kl_d'
+#test_norm = 'euclidean_d'
 
 # argparse
 parser = argparse.ArgumentParser(description='Supervised Multi Layer Perceptron Example')
@@ -89,9 +95,9 @@ alpha_decay_rate = 0.9
 adam_alpha_scheduler = DecayOptimizerScheduler(optimizer, 'alpha', alpha_decay_interval, alpha_decay_rate)
 
 
-trainer = trainers.VirtualAdversarialTrainer(optimizer, logger, (labeled_data,unlabeled_data), test_data, args.gpu, eps=0.4, xi=0.001, lam=1.0)
+trainer = VirtualAdversarialTrainer(optimizer, logger, (labeled_data,unlabeled_data), test_data, args.gpu, eps=0.4, xi=0.001, lam=1.0, norm=test_norm)
 trainer.add_optimizer_scheduler(adam_alpha_scheduler)
 trainer.train(args.nitr, 
-              log_interval=1,
-              test_interval=100, 
-              test_nitr=10)
+              log_interval=200,
+              test_interval=2000, 
+              test_nitr=1000)
